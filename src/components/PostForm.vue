@@ -3,6 +3,7 @@
         <h3>Создать пост</h3>
         <input v-model="title" type="text" class="input" placeholder="Название">
         <input v-model="body" type="text" class="input" placeholder="Описание">
+        <input type="text" class="input" placeholder="Категория">
         <button class="btn">Добавить пост</button>
     </form>
 </template>
@@ -23,11 +24,12 @@ export default{
 
 h3{
     font-size: 40px;
-    color:darkslategray
+    color:darkslategray;
+    margin-left: 25%;
 }
 .add-new-post{
     width: 500px;
-    margin: 20px 0 0 100px;
+    margin-top: 20px;
 }
 .input {
     width: 100%;

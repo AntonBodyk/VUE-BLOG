@@ -4,8 +4,10 @@
             <p>Vue-Blog</p>
         </div>
         <div class="navbar-btns">
-            <button @click="$router.push('/posts')">Посты</button>
-            <button>Регистрация</button>
+            <!-- <button>Создать пост</button> -->
+            <a-space>
+                <a-button ghost>Default</a-button>
+            </a-space>
         </div>
     </div>
 </template>
@@ -29,7 +31,7 @@
     padding-left: 100px;
 }
 .navbar-btns{
-    margin: 15px 0 0 50%;
+    margin: 9px 0 0 50%;
 }
 .navbar-btns button{
     margin-left: 15px;

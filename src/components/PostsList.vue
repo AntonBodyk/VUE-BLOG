@@ -1,10 +1,15 @@
 <template>
     <div v-if="posts.length > 0">
         <h3>Список постов</h3>
-        <!-- <div class="post" v-for="post in posts">
-            <div>Название: {{ post.title }}</div>
-            <div>Описание: {{ post.body }}</div>
-        </div> -->
+        <div class="post" v-for="post in posts" :key="post.id">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <div class="post-body">
+                <p>{{ post.body }}</p>
+            </div>
+            <!-- <div>Название: {{ post.title }}</div>
+            <div>Описание: {{ post.body }}</div> -->
+        </div>
+        
     </div>
     <h2 v-else style="color: red">Список постов пуст</h2>
     <!-- <div v-show="posts.length > 0">
@@ -13,6 +18,7 @@
 </template>
 
 <script>
+import { instance } from "../axios/axiosInstance";
 export default{
     data(){
         return{
@@ -21,19 +27,15 @@ export default{
     },
     methods: {
         async getPosts() {
-                    try {
-                        // this.isPostsLoading = true;
-                        const response = await axios.get('http://api-laravel-project/api/V1/posts');
-                            // params: {
-                            //     _page: this.page,
-                            //     _limit: this.limit
-                            // }
-                        
-                        // this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit); //-------Округляет число в большую сторону
-                        this.posts = response;
-                    }catch(e) {
-                        alert('Ошибка');
-                    }
+                try {
+                    const response = await instance.get('/posts')
+                    .then(response =>{
+                        this.posts = response.data;
+                        console.log(this.posts);
+                    });
+                }catch(e) {
+                    alert('Ошибка');
+                }
         }
     },
     mounted(){
@@ -44,6 +46,11 @@ export default{
 
 <style scoped>
 
+h3{
+    font-size: 40px;
+    color:darkslategray;
+    margin: 30px 0 0 100px;
+}
 h2{
     font-family: serif;
     margin: 20px 0 0 100px;

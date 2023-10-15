@@ -1,17 +1,32 @@
 <template>
-    <div>
-        <h1>Добро пожаловать в мой блог!</h1>
-    </div>
+    <create-new-post v-model:show="modalVisible">
+        <post-form></post-form>
+    </create-new-post>
+    <button @click="showModalCreate">Создать пост</button>
+    <posts-list></posts-list>
 </template>
 
 <script>
-
+import PostForm from '@/components/PostForm.vue';
+import PostsList from '@/components/PostsList.vue';
+import CreateNewPost from '@/components/UI/CreateNewPost.vue';
+export default{
+    components:{
+        PostForm, PostsList, CreateNewPost
+    },
+    data(){
+        return{
+            modalVisible: false
+        }
+    },
+    methods:{
+        showModalCreate(){
+            this.modalVisible = true;
+        }
+    }
+}
 </script>
 
-<style scoped>
-    h1{
-        font-family: 'Young Serif', serif;
-        text-align: center;
-        margin-top: 20%;
-    }
+<style>
+
 </style>

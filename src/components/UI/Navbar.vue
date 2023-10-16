@@ -6,14 +6,20 @@
         <div class="navbar-btns">
             <!-- <button>Создать пост</button> -->
             <a-space>
-                <a-button ghost>Default</a-button>
+                <a-button>Default</a-button>
             </a-space>
+            <UserOutlined class="user"/>
         </div>
     </div>
 </template>
 
 <script>
-
+import {UserOutlined} from '@ant-design/icons-vue';
+export default{
+    components:{
+        UserOutlined
+    }
+}
 </script>
 
 <style scoped>
@@ -35,5 +41,10 @@
 }
 .navbar-btns button{
     margin-left: 15px;
+}
+.user{
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
 }
 </style>

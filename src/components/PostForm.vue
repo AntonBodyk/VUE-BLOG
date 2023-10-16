@@ -1,21 +1,39 @@
 <template>
-    <form action="#" class="add-new-post">
+    <form class="add-new-post" @submit.prevent="addPost">
         <h3>Создать пост</h3>
-        <input v-model="title" type="text" class="input" placeholder="Название">
-        <input v-model="body" type="text" class="input" placeholder="Описание">
-        <input type="text" class="input" placeholder="Категория">
-        <button class="btn">Добавить пост</button>
+        <input v-model="post.title" type="text" class="input" placeholder="Название">
+        <input v-model="post.body" type="text" class="input" placeholder="Описание">
+        <input v-model="post.category" type="text" class="input" placeholder="Категория">
+        <button class="btn" type="submit" @click="hideModal">Добавить пост</button>
     </form>
 </template>
 
 <script>
 export default{
+    props:{
+        hideModal:{
+            type: Function,
+            required: true
+        }
+    },
     data(){
         return{
-            title: '',
-            body: ''
+            post:{
+                title: '',
+                body: '',
+                category: ''
+            }
         }
-        
+    },
+    methods:{
+        addPost(){
+            this.$emit('create', this.post);
+            this.post = {
+                title: '',
+                body: '',
+                category: ''
+            }
+        }
     }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
     <div class="modal-create" v-if="show" @click.stop="hideModal">
         <div @click.stop class="modal-content">
-            <div data-close class="modal__close">&times;</div>
+            <div @click="hideModal" class="modal__close">&times;</div>
             <slot></slot>
         </div>
     </div>

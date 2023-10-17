@@ -4,10 +4,6 @@
             <p>Vue-Blog</p>
         </div>
         <div class="navbar-btns">
-            <!-- <button>Создать пост</button> -->
-            <a-space>
-                <a-button>Default</a-button>
-            </a-space>
             <UserOutlined class="user"/>
         </div>
     </div>

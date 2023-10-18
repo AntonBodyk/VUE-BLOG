@@ -4,8 +4,14 @@
             <p>Vue-Blog</p>
         </div>
         <div class="navbar-btns">
-            <UserOutlined class="user"/>
+            <UserOutlined class="user" @click="showModal"/>
         </div>
+        <a-modal v-model:open="open" class="registration" :width="modalWidth" :height="modalHeight">
+            <template #footer>
+                <a-button style="background: darkcyan; color: white;" class="sign-in" @click="$router.push('/sign'), removeModal()">Войти</a-button>
+                <a-button class="sign-up" @click="$router.push('/registration'), removeModal()">Регистрация</a-button>
+            </template>
+        </a-modal>
     </div>
 </template>
 
@@ -14,6 +20,20 @@ import {UserOutlined} from '@ant-design/icons-vue';
 export default{
     components:{
         UserOutlined
+    },
+    data(){
+        return{
+            open: false,
+            modalWidth: "250px"
+        }
+    },
+    methods:{
+        showModal(){
+            this.open = true;
+        },
+        removeModal(){
+            this.open = false;
+        }
     }
 }
 </script>
@@ -21,7 +41,7 @@ export default{
 <style scoped>
 
 .navbar{
-    height: 50px;
+    max-height: 50px;
     background-color: darkslategray;
     box-shadow: 2px 2px 4px grey;
     display: flex;
@@ -42,5 +62,10 @@ export default{
     font-size: 20px;
     color: white;
     cursor: pointer;
+    padding: 5px 0 0 200px;
 }
+.sign-in{
+    margin-top: 20px;
+}
+
 </style>

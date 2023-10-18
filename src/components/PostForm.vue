@@ -3,8 +3,8 @@
         <h3>Создать пост</h3>
         <input v-model="post.title" type="text" class="input" placeholder="Название" >
         <input v-model="post.body" type="text" class="input" placeholder="Описание" >
-        <input v-model="post.category" type="text" class="input" placeholder="Категория" >
-        <button class="btn" type="submit">Добавить пост</button>
+        <input v-model="post.category" type="text" class="input" placeholder="Категория">
+        <button class="btn" type="submit" style="background: darkcyan; color: white; margin: 30px 0 0 30%; width: 200px; height: 50px;">Добавить пост</button>
     </form>
 </template>
 
@@ -44,9 +44,9 @@ h3{
     margin-top: 20px;
 }
 .input {
-    width: 100%;
+    /* width: 100%; */
     padding: 16px 16px 16px 60px;
-    margin-top: 20px;
+    margin: 20px 0 0 15%;
     font-size: 24px;
     line-height: 1.4em;
     font-family: inherit;
@@ -66,7 +66,13 @@ h3{
     color: #e6e6e6;
 }
 .btn{
-    margin-top: 20px;
-    align-self: flex-start;
+    background: darkcyan; 
+    color: white; 
+    margin: 30px 0 0 30%; 
+    width: 200px; 
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 </style>

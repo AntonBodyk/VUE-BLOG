@@ -1,35 +1,40 @@
 <template>
     <div v-if="posts.length > 0">
         <h3>Список постов</h3>
-        <create-new-post v-model:show="modalVisible">
+        <create-new-post v-model:open="modalVisible">
             <post-form @create="addPost" :hideModal="hideModal"></post-form>
         </create-new-post>
         <a-space>
-            <a-button class="new-post" @click="showModalCreate">Создать пост</a-button>
+            <a-button class="new-post" @click="showModalCreate" style="width: 150px; height: 40px;">Создать пост</a-button>
         </a-space>
         <div class="post" v-for="post in pagedPosts" :key="post.id">
-            <h2 class="post-title">{{ post.title }}</h2>
-            <div class="post-body">
-                <p>{{ post.body }}</p>
+            <div @click="$router.push(`/${post.id}`)">
+                <h2 class="post-title">{{ post.title }}</h2>
+                <div class="post-create-date">
+                Дата создания поста: {{ formattedDate(post.created_at) }}
+                </div>
+                    <div class="post-body">
+                    <p>{{ post.body }}</p>
+                </div>
+                <div class="post-icons">
+                    <div class="post-comment">
+                        <a href="#"><CommentOutlined class="comment"/></a>
+                        <span>0</span>
+                    </div>
+                    <div class="post-like">
+                        <LikeOutlined class="like"/>
+                        <span>0</span>
+                    </div>
+                    <div class="post-dislike">
+                        <DislikeOutlined class="dislike"/>
+                        <span>0</span>
+                    </div>
+                </div>
             </div>
-            <div class="post-icons">
-                <div class="post-comment">
-                    <a href="#"><CommentOutlined class="comment"/></a>
-                    <span>0</span>
-                </div>
-                <div class="post-like">
-                    <LikeOutlined class="like"/>
-                    <span>0</span>
-                </div>
-                <div class="post-dislike">
-                    <DislikeOutlined class="dislike"/>
-                    <span>0</span>
-                </div>
-                <div class="post-delete">
-                    <a-space warp>
-                        <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
-                    </a-space>
-                </div>
+            <div class="post-delete">
+                <a-space warp>
+                    <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
+                </a-space>
             </div>
         </div>
         <a-pagination class="pagination" :current="currentPage" :total="totalPosts"  :defaultPageSize="pageSize" @change="handlePageChange"  show-less-items/>
@@ -44,7 +49,7 @@
 import { instance } from "../axios/axiosInstance";
 import PostForm from './PostForm.vue';
 import CreateNewPost from '@/components/UI/CreateNewPost.vue';
-import { ref } from 'vue';
+import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 
 export default{
@@ -55,6 +60,7 @@ export default{
         return{
             modalVisible: false,
             posts: [],
+            dateArray: [],
             pageSize: 10,
             currentPage: 1,
             totalPosts: 0
@@ -114,6 +120,9 @@ export default{
         handlePageChange(page) {
             this.currentPage = page;
         },
+        formattedDate(created_at){
+            return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
+        }
     },
     computed:{
         // Calculate the starting index for the current page
@@ -134,7 +143,7 @@ export default{
 <style scoped>
 .error{
     font-size: 30px;
-    margin: 30px 0 0 100px;
+    margin: 25px 0 0 100px;
 }
 h3{
     font-size: 40px;
@@ -157,6 +166,7 @@ h3{
     background-color: white;
     border-radius: 10px;
     margin: 20px 0 0 100px;
+    cursor: pointer;
 }
 .post-body{
     padding-left: 20px;
@@ -195,10 +205,17 @@ h3{
     /* text-decoration: none; */
 }
 .post-delete{
-    margin: 0 0 10px 60%;
+    margin: -25px 0 0px 75%;
+    padding-bottom: 10px;
 }
 .pagination{
     margin: 30px 0 0 100px;
+}
+
+.post-create-date{
+    margin: 10px 0 10px 20px;
+    font-size: 15px;
+    color: cadetblue;
 }
 
 </style>

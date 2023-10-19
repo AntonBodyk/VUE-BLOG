@@ -41,7 +41,7 @@ export default{
 <style scoped>
 
 .navbar{
-    max-height: 50px;
+    height: 50px;
     background-color: darkslategray;
     box-shadow: 2px 2px 4px grey;
     display: flex;
@@ -66,6 +66,7 @@ export default{
 }
 .sign-in{
     margin-top: 20px;
+    padding-right: 25px;
 }
 
 </style>

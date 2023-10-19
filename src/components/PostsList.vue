@@ -2,7 +2,7 @@
     <div v-if="posts.length > 0">
         <h3>Список постов</h3>
         <create-new-post v-model:open="modalVisible">
-            <post-form @create="addPost" :hideModal="hideModal"></post-form>
+            <post-form @create="addPost" :hideModal="hideModal" :posts="posts"></post-form>
         </create-new-post>
         <a-space>
             <a-button class="new-post" @click="showModalCreate" style="width: 150px; height: 40px;">Создать пост</a-button>
@@ -47,6 +47,7 @@
 
 <script>
 import { instance } from "../axios/axiosInstance";
+import { message } from 'ant-design-vue';
 import PostForm from './PostForm.vue';
 import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
@@ -82,7 +83,7 @@ export default{
                     console.log(this.posts);
                 });
             }catch(e) {
-                alert('Ошибка');
+                message.error('Ошибка');
             }
         },
         async addPost(newPost){
@@ -97,10 +98,10 @@ export default{
                             this.modalVisible = false;
                         });
                     }catch{
-                        alert('Ошибка');
+                        message.error('Ошибка');
                     }
                 }else{
-                    alert('Заполните данные');
+                    message.error('Заполните данные');
                 }
 
         },
@@ -113,7 +114,7 @@ export default{
                 })
 
             }catch{
-                alert('Ошибка');
+                message.error('Ошибка');
             }
         },
         // Handle page change event from Ant Design Vue Pagination
@@ -122,10 +123,9 @@ export default{
         },
         formattedDate(created_at){
             return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
-        }
+        },
     },
     computed:{
-        // Calculate the starting index for the current page
         startIndex() {
             return (this.currentPage - 1) * this.pageSize;
         },

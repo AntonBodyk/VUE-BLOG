@@ -34,6 +34,7 @@
                 <a-button type="primary" html-type="submit">Войти</a-button>
             </a-form-item>
         </a-form>
+        <p class="registration">Нет аккаунта? <router-link to="/registration">Зарегистрироваться</router-link></p>
     </div>
    
 </template>
@@ -87,4 +88,12 @@ export default {
         font-size: 40px;
         color: darkcyan;
     }
+    .registration{
+        margin: 50px 0 0 43%;
+    }
+    .registration a{
+        color: cadetblue;
+        text-decoration: none;
+    }
 </style>
+

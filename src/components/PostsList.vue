@@ -16,21 +16,21 @@
                     <div class="post-body">
                     <p>{{ post.body }}</p>
                 </div>
-                <div class="post-icons">
+            </div>
+            <div class="post-icons">
                     <div class="post-comment">
                         <a href="#"><CommentOutlined class="comment"/></a>
                         <span>0</span>
                     </div>
                     <div class="post-like">
-                        <LikeOutlined class="like"/>
-                        <span>0</span>
+                        <LikeOutlined class="like" @click="likePost(post)"/>
+                        <span>{{ post.likes_count }}</span>
                     </div>
-                    <div class="post-dislike">
+                    <div class="post-dislike" @click="dislikePost(post)">
                         <DislikeOutlined class="dislike"/>
-                        <span>0</span>
+                        <span>{{ post.dislikes_count }}</span>
                     </div>
                 </div>
-            </div>
             <div class="post-delete">
                 <a-space warp>
                     <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
@@ -62,9 +62,10 @@ export default{
             modalVisible: false,
             posts: [],
             dateArray: [],
+            likes: 0,
             pageSize: 10,
             currentPage: 1,
-            totalPosts: 0
+            totalPosts: 0,
         }
     },
     methods:{
@@ -76,17 +77,44 @@ export default{
         },
         async getPosts() {
             try {
-                const response = await instance.get('/posts')
-                .then(response =>{
-                    this.posts = response.data;
-                    this.totalPosts = this.posts.length;
-                    console.log(this.posts);
+                const [postsResponse, likesResponse] = await Promise.all([
+                    instance.get('/posts'),
+                    instance.get('/likes'),
+                ]);
+                
+                this.posts = postsResponse.data;
+                this.totalPosts = this.posts.length;
+
+                const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
+                const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
+                this.posts.forEach(post => {
+                    let likesCount = likesData[post.id];
+                    let dislikesCount = dislikesData[post.id];
+                    // If likesCount exists in local storage, use it; otherwise, default to 0
+                    post.likes_count = likesCount !== undefined ? likesCount : 0;
+                    post.dislikes_count = dislikesCount !== undefined ? dislikesCount : 0;
                 });
-            }catch(e) {
-                message.error('Ошибка');
+
+                console.log(postsResponse);
+            } catch (error) {
+                message.error('Ошибка'); 
             }
         },
+        // async getPosts() {
+        //     try {
+                
+        //        const post =  await instance.get('/posts')
+        //         .then(response =>{
+        //             this.posts = response.data;
+        //             this.totalPosts = this.posts.length;
+        //             console.log(response);
+        //         });
+        //     }catch(e) {
+        //         message.error('Ошибка');
+        //     }
+        // },
         async addPost(newPost){
+                console.log(newPost.body);
                 if(newPost.title && newPost.body && newPost.category !== ''){
                     try{
                         const post = await instance.post('/posts', {title: newPost.title, body: newPost.body, category: newPost.category})
@@ -117,7 +145,40 @@ export default{
                 message.error('Ошибка');
             }
         },
-        // Handle page change event from Ant Design Vue Pagination
+        async likePost(post) {
+            try {
+                
+                const response = await instance.post('/likes', {post_id: post.id, likes: post.likes_count});
+                
+                post.likes_count += 1;
+
+                const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
+                likesData[post.id] = post.likes_count;
+                localStorage.setItem('likesData', JSON.stringify(likesData));
+
+                await instance.put(`/posts/${post.id}`, { likes_count: post.likes_count });
+                
+            } catch (error) {
+                message.error('Ошибка');
+            }
+        },
+        async dislikePost(post) {
+            try {
+                
+                const response = await instance.post('/likes', {post_id: post.id, dislikes: post.dislikes_count});
+                
+                post.dislikes_count += 1;
+
+                const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
+                dislikesData[post.id] = post.dislikes_count;
+                localStorage.setItem('dislikesData', JSON.stringify(dislikesData));
+
+                await instance.put(`/posts/${post.id}`, { dislikes_count: post.dislikes_count });
+                
+            } catch (error) {
+                message.error('Ошибка');
+            }
+        },
         handlePageChange(page) {
             this.currentPage = page;
         },
@@ -129,13 +190,19 @@ export default{
         startIndex() {
             return (this.currentPage - 1) * this.pageSize;
         },
-        // Get the posts for the current page
         pagedPosts() {
             return this.posts.slice(this.startIndex, this.startIndex + this.pageSize);
-        }
+        },
+        
     },
     mounted(){
         this.getPosts();
+        
+        // const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
+
+        // this.posts.forEach(post => {
+        //     post.likes_count = likesData[post.id] || 0;
+        // });
     }
 }
 </script>

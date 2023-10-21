@@ -9,7 +9,7 @@
         <a-modal v-model:open="open" class="registration" :width="modalWidth" :height="modalHeight">
             <template #footer>
                 <a-button style="background: darkcyan; color: white;" class="sign-in" @click="$router.push('/sign'), removeModal()">Войти</a-button>
-                <a-button class="sign-up" @click="$router.push('/registration'), removeModal()">Регистрация</a-button>
+                <a-button class="sign-up" @click="removeModal()">Выход</a-button>
             </template>
         </a-modal>
     </div>
@@ -66,7 +66,9 @@ export default{
 }
 .sign-in{
     margin-top: 20px;
-    padding-right: 25px;
+}
+.sign-up{
+    margin-right: 30px;
 }
 
 </style>

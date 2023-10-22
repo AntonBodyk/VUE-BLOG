@@ -11,7 +11,10 @@
             <div @click="$router.push(`/${post.id}`)">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <div class="post-create-date">
-                Дата создания поста: {{ formattedDate(post.created_at) }}
+                    Дата создания поста: {{ formattedDate(post.created_at) }}
+                </div>
+                <div class="post-category">
+                    Тема: {{ post.category }}
                 </div>
                     <div class="post-body">
                     <p>{{ post.body }}</p>
@@ -90,7 +93,7 @@ export default{
                 this.posts.forEach(post => {
                     let likesCount = likesData[post.id];
                     let dislikesCount = dislikesData[post.id];
-                    // If likesCount exists in local storage, use it; otherwise, default to 0
+                    
                     post.likes_count = likesCount !== undefined ? likesCount : 0;
                     post.dislikes_count = dislikesCount !== undefined ? dislikesCount : 0;
                 });
@@ -100,46 +103,41 @@ export default{
                 message.error('Ошибка'); 
             }
         },
-        // async getPosts() {
-        //     try {
-                
-        //        const post =  await instance.get('/posts')
-        //         .then(response =>{
-        //             this.posts = response.data;
-        //             this.totalPosts = this.posts.length;
-        //             console.log(response);
-        //         });
-        //     }catch(e) {
-        //         message.error('Ошибка');
-        //     }
-        // },
         async addPost(newPost){
                 console.log(newPost.body);
                 if(newPost.title && newPost.body && newPost.category !== ''){
                     try{
-                        const post = await instance.post('/posts', {title: newPost.title, body: newPost.body, category: newPost.category})
-                        .then(response => {
-                            console.log(response.data);
-                            this.posts = response.data;
-                        })
-                        .finally(() => {
-                            this.modalVisible = false;
+                        const response = await instance.post('/posts', {
+                            title: newPost.title,
+                            body: newPost.body,
+                            category: newPost.category,
                         });
+
+                        if (response.status === 200) { 
+                            const createdPost = response.data;
+                            this.posts.unshift(createdPost); 
+                            message.success('Пост успешно создан.');
+                        } else {
+                            message.error('Ошибка при создании поста.');
+                        }
                     }catch{
                         message.error('Ошибка');
                     }
                 }else{
                     message.error('Заполните данные');
                 }
-
+                
+                this.modalVisible = false;
         },
         async removePost(postId){
             try{
                 const deletePost = await instance.delete(`/posts/${postId}`)
-                .then(response =>{
-                    console.log(response.data);
-                    this.posts = response.data;
-                })
+                if (deletePost.status === 200) {
+                    this.posts = this.posts.filter(post => post.id !== postId);
+                    message.success('Пост успешно удален');
+                } else {
+                    message.error('Ошибка при удалении поста');
+                }
 
             }catch{
                 message.error('Ошибка');
@@ -197,12 +195,6 @@ export default{
     },
     mounted(){
         this.getPosts();
-        
-        // const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
-
-        // this.posts.forEach(post => {
-        //     post.likes_count = likesData[post.id] || 0;
-        // });
     }
 }
 </script>
@@ -285,4 +277,9 @@ h3{
     color: cadetblue;
 }
 
+.post-category{
+    margin: 10px 0 10px 20px;
+    font-size: 15px;
+    color: cornflowerblue;
+}
 </style>

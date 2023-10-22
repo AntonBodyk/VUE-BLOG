@@ -10,23 +10,17 @@
             style="width: 600px; margin-left: 40px; "
             @submit.prevent="addPost"
             >
-            <!-- <p v-if="errors.length">
-                <b>Пожалуйста исправьте указанные ошибки:</b>
-                <ul>
-                    <li v-for="error in errors" :key="error.index">{{ error }}</li>
-                </ul>
-            </p> -->
             <a-form-item
                 name="title"
-                :rules="[{ required: true, message: 'Пожалуйста введите название поста!' }]"
+                :rules="[{ required: true, message: 'Пожалуйста введите название поста!' }, {validator: validateTitle}]"
                 >
-                <a-input v-model:value="post.title" placeholder="Название поста" style="height: 50px; margin-bottom: 5px;"/>
+                <a-input v-model:value="this.post.title" placeholder="Название поста" style="height: 50px; margin-bottom: 5px;"/>
             </a-form-item>
 
-            <a-form-item name="category">
+            <a-form-item name="category" :rules="[{ required: true, message: 'Пожалуйста введите название категории!' }, {validator: validateCategory}]">
                 <a-auto-complete
                     style="padding-top: 20px;"
-                    v-model:value="post.category"
+                    v-model:value="this.post.category"
                     :options="this.autocompleteOptions"
                     :filter-method="handleFilter"
                     @search="handleSearch"
@@ -41,8 +35,8 @@
             </a-auto-complete>
             </a-form-item>
 
-            <a-form-item name="body">
-                <quill-editor v-model:value="post.body" theme="snow" :content-type="html"></quill-editor>
+            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' }, {validator: validateBody}]">
+                    <quill-editor v-model:value="this.post.body"></quill-editor>
             </a-form-item>
             
 
@@ -57,9 +51,9 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import QuillEditor from './QuillEditor.vue';
+// import { QuillEditor } from '@vueup/vue-quill';
+
 export default{
     components:{
         QuillEditor
@@ -117,10 +111,43 @@ export default{
 
 
         },
-        onEditorChange ({ quill, html, text }) {
-            console.log('editor change!', quill, html, text)
-            this.$emit('change', html)
-        }
+        // onEditorChange ({ quill, html, text }) {
+        //     console.log('editor change!', quill, html, text)
+        //     this.$emit('change', html)
+        // }
+        validateTitle(rule, value) {
+            return new Promise((resolve, reject) => {
+                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+
+                if (namePattern.test(value)) {
+                    resolve(); 
+                } else {
+                    reject('Название должно начинаться с большой буквы!');
+                }
+            });
+        },
+        validateCategory(rule, value) {
+            return new Promise((resolve, reject) => {
+                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+
+                if (namePattern.test(value)) {
+                    resolve(); 
+                } else {
+                    reject('Название категории должно начинаться с большой буквы!');
+                }
+            });
+        },
+        validateBody(rule, value) {
+            return new Promise((resolve, reject) => {
+                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+
+                if (namePattern.test(value)) {
+                    resolve(); 
+                } else {
+                    reject('Текст поста должен начинаться с большой буквы!');
+                }
+            });
+        },
     }
 }
 </script>

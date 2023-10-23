@@ -23,7 +23,7 @@
         >
             <a-input v-model:value="this.registrationState.username" />
         </a-form-item>
-  
+
         <a-form-item name="email" label="Email" :rules="[
             { required: true, message: 'Пожалуйста, введите адрес электронной почты!' },
             { type: 'email', message: 'Неверный формат электронной почты!' },
@@ -31,7 +31,7 @@
         ]">
             <a-input v-model:value="this.registrationState.email" @input="clearEmailValidation" />
         </a-form-item>
-  
+
         <a-form-item
           label="Пароль"
           name="password"
@@ -109,25 +109,38 @@
             }
         },
         validateName(rule, value) {
-            return new Promise((resolve, reject) => {
-                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+            
+                if(value){
+                    const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+                    const containsNumber = /\d/.test(value);
 
-                if (namePattern.test(value)) {
-                    resolve(); 
-                } else {
-                    reject('Имя должно начинаться с большой буквы!');
+                    if (!containsNumber && namePattern.test(value)) {
+                        return Promise.resolve(); 
+                    } else {
+                        return Promise.reject('Имя должно начинаться с большой буквы и не содержать чисел!');
+                    }
+                }else{
+                    return Promise.resolve();
                 }
-            });
+                
+            
         },
         validateEmail(rule, value) {
-            const emailPattern = /@/;
+                if(value){
+                    const emailPattern = /@/;
 
-            if (emailPattern.test(value)) {
-                return Promise.resolve();
-            } else {
-                return Promise.reject('Адрес электронной почты должен содержать символ "@"!');
-            }
-            },
+                    if (emailPattern.test(value)) {
+                        return Promise.resolve();
+                    } else {
+                        return Promise.reject('Адрес электронной почты должен содержать символ "@"!');
+                    }
+                }else{
+                    return Promise.resolve();
+                }
+               
+           
+            
+        },
         clearEmailValidation() {
             // Clear email field validation errors
             this.$refs.form.clearValidate('user.email');

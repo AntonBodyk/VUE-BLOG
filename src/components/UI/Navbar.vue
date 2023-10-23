@@ -5,6 +5,9 @@
         </div>
         <div class="navbar-btns">
             <UserOutlined class="user" @click="showModal"/>
+            <a-space wrap>
+                <a-button @click="toggleTheme">Сменить цвет</a-button>
+            </a-space>
         </div>
         <a-modal v-model:open="open" class="registration" :width="modalWidth" :height="modalHeight">
             <template #footer>
@@ -17,6 +20,7 @@
 
 <script>
 import {UserOutlined} from '@ant-design/icons-vue';
+import {useThemeStore} from "@/store/user";
 export default{
     components:{
         UserOutlined
@@ -33,7 +37,11 @@ export default{
         },
         removeModal(){
             this.open = false;
-        }
+        },
+        toggleTheme() {
+            const themeStore = useThemeStore();
+            themeStore.toggleTheme();
+        },
     }
 }
 </script>
@@ -70,5 +78,4 @@ export default{
 .sign-up{
     margin-right: 30px;
 }
-
 </style>

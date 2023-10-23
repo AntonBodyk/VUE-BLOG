@@ -4,10 +4,9 @@
         <create-new-post v-model:open="modalVisible">
             <post-form @create="addPost" :hideModal="hideModal" :posts="posts"></post-form>
         </create-new-post>
-        <a-space>
-            <a-button class="new-post" @click="showModalCreate" style="width: 150px; height: 40px;">Создать пост</a-button>
-        </a-space>
-        <div class="post" v-for="post in pagedPosts" :key="post.id">
+        <default-button @click="showModalCreate">Создать пост</default-button>
+        <default-button @click="userHandler">Привествие</default-button>
+        <div :class="{ 'dark-theme': isDarkTheme }" class="post" v-for="post in pagedPosts" :key="post.id">
             <div @click="$router.push(`/${post.id}`)">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <div class="post-create-date">
@@ -36,9 +35,14 @@
                 </div>
             <div class="post-delete">
                 <a-space warp>
+                    <a-button class="change" @click="toggleColor" type="primary" ghost>Сменить цвет</a-button>
+                </a-space>
+                <a-space warp>
                     <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
                 </a-space>
             </div>
+            
+            
         </div>
         <a-pagination class="pagination" :current="currentPage" :total="totalPosts"  :defaultPageSize="pageSize" @change="handlePageChange"  show-less-items/>
     </div>
@@ -56,12 +60,14 @@ import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 
+
 export default{
     components:{
         LikeOutlined, DislikeOutlined, CommentOutlined, PostForm, CreateNewPost
     },
     data(){
         return{
+            isDarkTheme: false,
             modalVisible: false,
             posts: [],
             dateArray: [],
@@ -69,6 +75,7 @@ export default{
             pageSize: 10,
             currentPage: 1,
             totalPosts: 0,
+            userHello: true
         }
     },
     methods:{
@@ -77,6 +84,9 @@ export default{
         },
         hideModal(){
             this.modalVisible = false;
+        },
+        toggleColor() {
+            this.isDarkTheme = !this.isDarkTheme;
         },
         async getPosts() {
             try {
@@ -183,6 +193,15 @@ export default{
         formattedDate(created_at){
             return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
         },
+        helloUser(){
+            message.success('Добро пожаловать в мой блог!');
+        },
+        goodbyeUser(){
+            message.error('Всего хорошего!');
+        },
+        userHandler(){
+            this.clickHandler();
+        }
     },
     computed:{
         startIndex() {
@@ -191,7 +210,9 @@ export default{
         pagedPosts() {
             return this.posts.slice(this.startIndex, this.startIndex + this.pageSize);
         },
-        
+        clickHandler() {
+            return this.userHello ? this.helloUser : this.goodbyeUser;
+        },
     },
     mounted(){
         this.getPosts();
@@ -214,7 +235,6 @@ h3{
     margin: 30px 0 0 100px;
 }
 .post-title{
-    /* margin-top: -15px; */
     padding: 20px 0 0 20px;
     max-width: 600px;
     color:darkslategray;
@@ -238,7 +258,6 @@ h3{
 }
 .post-comment{
     margin-top: -3px;
-    /* padding-left: 20px; */
 }
 
 .post-comment span{
@@ -264,8 +283,17 @@ h3{
     /* text-decoration: none; */
 }
 .post-delete{
-    margin: -25px 0 0px 75%;
+    margin: -25px 0 0px 60%;
     padding-bottom: 10px;
+    display: flex;
+}
+
+.change{
+    margin-right: 10px;
+}
+
+.dark-theme{
+    background-color: #333;
 }
 .pagination{
     margin: 30px 0 0 100px;

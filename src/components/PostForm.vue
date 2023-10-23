@@ -128,12 +128,13 @@ export default{
         },
         validateCategory(rule, value) {
             return new Promise((resolve, reject) => {
-                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+                const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z\s]*$/;
+                const containsNumber = /\d/.test(value);
 
-                if (namePattern.test(value)) {
+                if (!containsNumber && namePattern.test(value)) {
                     resolve(); 
                 } else {
-                    reject('Название категории должно начинаться с большой буквы!');
+                    reject('Название категории должно начинаться с большой буквы и не содержать чисел!');
                 }
             });
         },

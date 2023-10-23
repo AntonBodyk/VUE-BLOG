@@ -85,15 +85,19 @@
         }
       },
       validateName(rule, value) {
-        return new Promise((resolve, reject) => {
-          const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
-  
-          if (namePattern.test(value)) {
-            resolve();
-          } else {
-            reject('Имя должно начинаться с большой буквы!');
+        
+          if(value){
+            const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
+    
+            if (namePattern.test(value)) {
+              return Promise.resolve();
+            } else {
+              return Promise.reject('Имя должно начинаться с большой буквы!');
+            }
+          }else{
+            return Promise.resolve();
           }
-        });
+          
       },
     },
   };

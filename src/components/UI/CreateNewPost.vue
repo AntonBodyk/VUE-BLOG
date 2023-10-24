@@ -1,10 +1,4 @@
 <template>
-    <!-- <div class="modal-create" v-if="show" @click.stop="hideModal">
-        <div @click.stop class="modal-content">
-            <div @click="hideModal" class="modal__close">&times;</div>
-            <slot></slot>
-        </div>
-    </div> -->
     
         <a-modal v-model:open="open">
             <slot></slot>
@@ -17,22 +11,11 @@
 
 <script>
 export default{
-    // props:{
-    //     open:{
-    //         type: Boolean,
-    //         default: false
-    //     }
-    // },
     data(){
         return{
             open: false
         }
     },
-    methods:{
-        // hideModal(){
-        //     this.$emit('update:show', false);
-        // }
-    }
 }
 </script>
 

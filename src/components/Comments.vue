@@ -69,7 +69,7 @@
   };
   </script> -->
   <script setup>
-  import { useCommentStore } from '@/store/user';
+  import { useCommentStore } from '@/store/commentStore';
 
   const commentStore = useCommentStore();
   const { comments, submitting, value } = commentStore;

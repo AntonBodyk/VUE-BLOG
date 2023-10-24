@@ -9,7 +9,7 @@
                 <a-button @click="toggleTheme">Сменить цвет</a-button>
             </a-space>
         </div>
-        <a-modal v-model:open="open" class="registration" :width="modalWidth" :height="modalHeight">
+        <a-modal v-model:open="open" class="registration" :width="modalWidth">
             <template #footer>
                 <a-button style="background: darkcyan; color: white;" class="sign-in" @click="$router.push('/sign'), removeModal()">Войти</a-button>
                 <a-button class="sign-up" @click="removeModal()">Выход</a-button>
@@ -20,7 +20,7 @@
 
 <script>
 import {UserOutlined} from '@ant-design/icons-vue';
-import {useThemeStore} from "@/store/user";
+import {useThemeStore} from "@/store/colorStore";
 export default{
     components:{
         UserOutlined

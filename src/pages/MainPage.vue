@@ -8,7 +8,7 @@
 <script>
 import PostsList from '@/components/PostsList.vue';
 import Sidebar from "@/components/Sidebar.vue";
-import {useThemeStore} from "@/store/user";
+import {useThemeStore} from "@/store/colorStore";
 import { computed } from 'vue';
 export default{
     components:{

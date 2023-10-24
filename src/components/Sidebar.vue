@@ -3,7 +3,7 @@
         <h1>Лучшие посты</h1>
 
         <div class="popular-posts" v-for="popularPost in filteredAndSortedByLikes()" :key="popularPost.id">
-            <h2>Название: {{ popularPost.title }}</h2>
+            <h2 @click="$router.push(`/${popularPost.id}`)">{{ popularPost.title }}</h2>
             <p>
                 <a-space>
                     <icon :style="{ color: 'hotpink' }">
@@ -73,6 +73,7 @@ h1{
 .popular-posts h2{
     font-size: 18px;
     color:rgb(43, 69, 69);
+    cursor: pointer;
 }
 .popular-posts p{
     font-size: 15px;

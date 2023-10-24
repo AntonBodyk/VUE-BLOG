@@ -71,7 +71,6 @@ export default{
             modalVisible: false,
             posts: [],
             dateArray: [],
-            likes: 0,
             pageSize: 10,
             currentPage: 1,
             totalPosts: 0,
@@ -100,6 +99,7 @@ export default{
 
                 const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
                 const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
+
                 this.posts.forEach(post => {
                     let likesCount = likesData[post.id];
                     let dislikesCount = dislikesData[post.id];
@@ -123,9 +123,15 @@ export default{
                             category: newPost.category,
                         });
 
-                        if (response.status === 200) { 
-                            const createdPost = response.data;
-                            this.posts.unshift(createdPost); 
+                        if (response.status === 201) { 
+                            const createdPost = response.data.data;
+
+
+                            createdPost.likes_count = 0;
+                            createdPost.dislikes_count = 0;
+                            console.log(createdPost);
+
+                            this.posts.push(createdPost); 
                             message.success('Пост успешно создан.');
                         } else {
                             message.error('Ошибка при создании поста.');

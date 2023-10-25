@@ -64,7 +64,7 @@
     methods: {
       async loginUser() {
         try {
-          const response = await instance.post('/users', {
+          const response = await instance.post('/auth/login', {
             name: this.formState.name,
             password: this.formState.password,
           });
@@ -72,11 +72,17 @@
           
           if (response.data && response.data.token) {
            
-            const token = 'your-auth-token'; 
-  
-            
+            const token = response.data.token; 
             const userStore = useUserStore();
+            
             userStore.setToken(token);
+            userStore.setUserData(response.data.user);
+
+            message.success('Вход выполнен!');
+            this.$router.push('/');
+            this.formState.name = '';
+            this.formState.password = '';
+            this.formState.remember = false;
           } else {
             message.error('Ошибка, вход не выполнен!');
           }

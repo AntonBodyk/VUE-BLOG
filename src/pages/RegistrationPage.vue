@@ -102,7 +102,8 @@
                     checkPass: '',
                 };
 
-                message.info('Регистрация прошла успешно');
+                message.success('Регистрация прошла успешно');
+                this.$router.push('/sign');
             } catch (error) {
                 console.error('Error during API request:', error);
                 message.error('Ошибка при регистрации!');

@@ -4,6 +4,7 @@
             <p>Vue-Blog</p>
         </div>
         <div class="navbar-btns">
+            <span v-show="userData">{{ userData }}</span>
             <UserOutlined class="user" @click="showModal"/>
             <a-space wrap>
                 <a-button @click="toggleTheme">Сменить цвет</a-button>
@@ -12,7 +13,7 @@
         <a-modal v-model:open="open" class="registration" :width="modalWidth">
             <template #footer>
                 <a-button style="background: darkcyan; color: white;" class="sign-in" @click="$router.push('/sign'), removeModal()">Войти</a-button>
-                <a-button class="sign-up" @click="removeModal()">Выход</a-button>
+                <a-button class="sign-up" @click="logout(), removeModal()">Выход</a-button>
             </template>
         </a-modal>
     </div>
@@ -21,6 +22,11 @@
 <script>
 import {UserOutlined} from '@ant-design/icons-vue';
 import {useThemeStore} from "@/store/colorStore";
+import { instance } from '@/axios/axiosInstance';
+import { useUserStore } from '@/store/user';
+import { computed } from 'vue';
+import { ref } from 'vue';
+import { message } from 'ant-design-vue';
 export default{
     components:{
         UserOutlined
@@ -42,6 +48,38 @@ export default{
             const themeStore = useThemeStore();
             themeStore.toggleTheme();
         },
+        
+    },
+    setup() {
+        const userStore = useUserStore();
+
+        const logout = async () => {
+            const accessToken = localStorage.getItem('auth_token');
+            console.log(accessToken);
+            const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                };
+
+            try {
+                const response = await instance.get('/auth/logout', config); 
+                
+                if (response.status === 200) {
+                
+                    userStore.clearToken();
+
+                    message.success('User logged out successfully');
+                } else {
+                    message.error('Logout failes', response);
+                }
+            } catch (error) {
+                    message.error('Logout failed', error);
+            }
+        };
+        return {
+            logout
+        };
     }
 }
 </script>

@@ -11,14 +11,14 @@
         @submit.prevent="loginUser"
       >
         <a-form-item
-          label="Имя"
-          name="name"
+          label="Эл. почта"
+          name="email"
           :rules="[
-            { required: true, message: 'Пожалуйста, введите имя!' },
-            { validator: validateName },
+            { required: true, message: 'Пожалуйста, введите электронный адрес!' },
+            { validator: validateEmail },
           ]"
         >
-          <a-input v-model:value="formState.name" />
+          <a-input v-model:value="formState.email" />
         </a-form-item>
   
         <a-form-item
@@ -51,11 +51,12 @@
   import { instance } from '@/axios/axiosInstance';
   import { message } from 'ant-design-vue';
   import { useUserStore } from '@/store/user';
+  
   export default {
     data() {
       return {
         formState: {
-          name: '',
+          email: '',
           password: '',
           remember: false,
         },
@@ -65,20 +66,23 @@
       async loginUser() {
         try {
           const response = await instance.post('/auth/login', {
-            name: this.formState.name,
+            email: this.formState.email,
             password: this.formState.password,
           });
   
-          
+          console.log(response.data);
           if (response.data && response.data.token) {
            
             const token = response.data.token; 
             const userStore = useUserStore();
             
             userStore.setToken(token);
-            userStore.setUserData(response.data.user);
+            
 
             message.success('Вход выполнен!');
+            
+            userStore.setUser(response.data);
+
             this.$router.push('/');
             this.formState.name = '';
             this.formState.password = '';
@@ -90,21 +94,19 @@
           message.error('Ошибка сервера!');
         }
       },
-      validateName(rule, value) {
-        
-          if(value){
-            const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z]*$/;
-    
-            if (namePattern.test(value)) {
-              return Promise.resolve();
-            } else {
-              return Promise.reject('Имя должно начинаться с большой буквы!');
-            }
-          }else{
-            return Promise.resolve();
-          }
-          
-      },
+      validateEmail(rule, value) {
+                if(value){
+                    const emailPattern = /@/;
+
+                    if (emailPattern.test(value)) {
+                        return Promise.resolve();
+                    } else {
+                        return Promise.reject('Адрес электронной почты должен содержать символ "@"!');
+                    }
+                }else{
+                    return Promise.resolve();
+                }
+        },
     },
   };
   </script>

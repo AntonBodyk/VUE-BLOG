@@ -138,9 +138,6 @@
                 }else{
                     return Promise.resolve();
                 }
-               
-           
-            
         },
         clearEmailValidation() {
             // Clear email field validation errors

@@ -4,7 +4,7 @@
             <p>Vue-Blog</p>
         </div>
         <div class="navbar-btns">
-            <span v-show="userData">{{ userData }}</span>
+            <span class="user-name">{{ userName }}</span>
             <UserOutlined class="user" @click="showModal"/>
             <a-space wrap>
                 <a-button @click="toggleTheme">Сменить цвет</a-button>
@@ -48,7 +48,12 @@ export default{
             const themeStore = useThemeStore();
             themeStore.toggleTheme();
         },
-        
+    },
+    computed: {
+        userName() {
+            const userStore = useUserStore();
+            return userStore.user ? userStore.user.name : null;
+        }
     },
     setup() {
         const userStore = useUserStore();
@@ -68,8 +73,11 @@ export default{
                 if (response.status === 200) {
                 
                     userStore.clearToken();
+                    userStore.clearAuthUser();
+                    
+                    message.success('Вы вышли из аккаунта!');
 
-                    message.success('User logged out successfully');
+                    window.location.href = '#/sign';
                 } else {
                     message.error('Logout failes', response);
                 }
@@ -82,6 +90,7 @@ export default{
         };
     }
 }
+
 </script>
 
 <style scoped>
@@ -108,7 +117,12 @@ export default{
     font-size: 20px;
     color: white;
     cursor: pointer;
-    padding: 5px 0 0 200px;
+    padding: 5px 0 0 80px;
+}
+
+.user-name{
+    color: #fff;
+    
 }
 .sign-in{
     margin-top: 20px;

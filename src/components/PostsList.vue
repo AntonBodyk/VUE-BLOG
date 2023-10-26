@@ -65,6 +65,7 @@ export default{
     components:{
         LikeOutlined, DislikeOutlined, CommentOutlined, PostForm, CreateNewPost
     },
+    mixins:['myMixin'],
     data(){
         return{
             isDarkTheme: false,
@@ -74,7 +75,8 @@ export default{
             pageSize: 10,
             currentPage: 1,
             totalPosts: 0,
-            userHello: true
+            userHello: true,
+            componentData: 'Данные компонента'
         }
     },
     methods:{
@@ -219,10 +221,15 @@ export default{
         clickHandler() {
             return this.userHello ? this.helloUser : this.goodbyeUser;
         },
+        combinedData() {
+            return `${this.mixinData} - ${this.componentData}`;
+        },
     },
     mounted(){
         this.getPosts();
-    }
+        // this.greetMixin();
+        // this.showAlert('This is an alert from the mixin');
+    },
 }
 </script>
 

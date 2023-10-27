@@ -7,6 +7,7 @@
         <default-button @click="showModalCreate">Создать пост</default-button>
         <default-button @click="userHandler">Привествие</default-button>
         <div :class="{ 'dark-theme': isDarkTheme }" class="post" v-for="post in pagedPosts" :key="post.id">
+            <transition-group name="post-list">
             <div @click="$router.push(`/${post.id}`)">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <div class="post-create-date">
@@ -19,10 +20,11 @@
                     <p>{{ post.body }}</p>
                 </div>
             </div>
+            </transition-group>
             <div class="post-icons">
                     <div class="post-comment">
-                        <a href="#"><CommentOutlined class="comment"/></a>
-                        <span>0</span>
+                        <CommentOutlined class="comment"/>
+                        <span>{{ commentCount(post) }}</span>
                     </div>
                     <div class="post-like">
                         <LikeOutlined class="like" @click="likePost(post)"/>
@@ -59,7 +61,7 @@ import PostForm from './PostForm.vue';
 import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
-
+import { useCommentStore } from '@/store/commentStore';
 
 export default{
     components:{
@@ -116,7 +118,6 @@ export default{
             }
         },
         async addPost(newPost){
-                console.log(newPost.body);
                 if(newPost.title && newPost.body && newPost.category !== ''){
                     try{
                         const response = await instance.post('/posts', {
@@ -131,7 +132,6 @@ export default{
 
                             createdPost.likes_count = 0;
                             createdPost.dislikes_count = 0;
-                            console.log(createdPost);
 
                             this.posts.push(createdPost); 
                             message.success('Пост успешно создан.');
@@ -209,7 +209,11 @@ export default{
         },
         userHandler(){
             this.clickHandler();
-        }
+        },
+        commentCount(post) {
+            const commentStore = useCommentStore();
+            return commentStore.getCommentCount(post.id);
+        },
     },
     computed:{
         startIndex() {
@@ -224,6 +228,7 @@ export default{
         combinedData() {
             return `${this.mixinData} - ${this.componentData}`;
         },
+        
     },
     mounted(){
         this.getPosts();
@@ -322,5 +327,18 @@ h3{
     margin: 10px 0 10px 20px;
     font-size: 15px;
     color: cornflowerblue;
+}
+
+.post-list-enter-active,
+.post-list-leave-active {
+    transition: all 0.4s ease;
+}
+.post-list-enter-from,
+.post-list-leave-to {
+    opacity: 0;
+    transform: translateX(130px);
+}
+.post-list-move {
+    transition: transform 0.8s ease;
 }
 </style>

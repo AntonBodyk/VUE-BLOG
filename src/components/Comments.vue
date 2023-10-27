@@ -3,19 +3,17 @@
       <a-list
         v-if="comments.length"
         :data-source="comments"
-        :header="`${comments.length} ${comments.length > 1 ? 'replies' : 'reply'}`"
+        :header="`${comments.length} ${comments.length > 1 ? 'comments' : 'comment'}`"
         item-layout="horizontal"
         class="comment-list"
       >
-        <template #renderItem="{ item }">
-          <a-list-item>
-            <a-comment
-              :author="item.author"
-              :content="item.content"
-              :datetime="item.datetime"
-            />
-          </a-list-item>
-        </template>
+        <a-list-item v-for="comment in comments" :key="comment.id">
+          <a-comment
+            :author="comment.author"
+            :content="comment.comment_text"
+            :datetime="comment.datetime"
+          />
+        </a-list-item>
       </a-list>
       <a-comment class="comment">
         <template #content>
@@ -24,7 +22,7 @@
           </a-form-item>
           <a-form-item>
             <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
-              Add Comment
+              Добавить
             </a-button>
           </a-form-item>
         </template>
@@ -32,9 +30,11 @@
     </div>
   </template>
   
-  <!-- <script>
+  <script>
+  import { useCommentStore } from '@/store/commentStore';
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
+  import { instance } from '@/axios/axiosInstance';
   
   dayjs.extend(relativeTime);
   
@@ -46,48 +46,69 @@
         value: '',
       };
     },
+    props: {
+      postId: {
+        type: String,
+        required: true
+      }
+    },
+    created() {
+      this.loadCommentsFromLocalStorage();
+    },
     methods: {
-      handleSubmit() {
+      async handleSubmit() {
         if (!this.value) {
           return;
         }
   
         this.submitting = true;
   
-        setTimeout(() => {
-          this.submitting = false;
-          this.comments.unshift({
-            author: 'Han Solo',
-            content: this.value,
-            datetime: dayjs().fromNow(),
+        try {
+          const response = await instance.post('/comments', {
+            comment_text: this.value,
+            post_id: this.postId,
+            user_name: this.user_name
           });
   
+          
+          this.comments.unshift(response.data.data);
+
+          const commentStorageKey = `post_${this.postId}_comments`;
+          localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
+  
+          this.saveCommentsToLocalStorage();
+          
+          const commentStore = useCommentStore();
+          commentStore.incrementCommentCount(this.postId);
+
           this.value = '';
-        }, 1000);
+        } catch (error) {
+          console.error('Error adding comment', error);
+        } finally {
+          this.submitting = false;
+        }
+      },
+      saveCommentsToLocalStorage() {
+    // Use a unique storage key for this post's comments
+        const commentStorageKey = `post_${this.postId}_comments`;
+        localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
+      },
+      loadCommentsFromLocalStorage() {
+        // Use a unique storage key for this post's comments
+        const commentStorageKey = `post_${this.postId}_comments`;
+        const storedComments = localStorage.getItem(commentStorageKey);
+        if (storedComments) {
+          this.comments = JSON.parse(storedComments);
+        }
       },
     },
+    created() {
+      // Use the unique storage key for this post's comments
+      const commentStorageKey = `post_${this.postId}_comments`;
+      this.loadCommentsFromLocalStorage(commentStorageKey);
+    },
   };
-  </script> -->
-  <script setup>
-  import { useCommentStore } from '@/store/commentStore';
-
-  const commentStore = useCommentStore();
-  const { comments, submitting, value } = commentStore;
-
-  const handleSubmit = async () => {
-    if (!value) {
-      return;
-    }
-
-    const newComment = new Comment('Han Solo', value, dayjs().fromNow());
-
-    
-    await commentStore.addComment(newComment);
-
-    
-    value.value = '';
-  };
-</script>
+  </script>
 
 <style scoped>
 .comment{

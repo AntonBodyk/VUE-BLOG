@@ -8,6 +8,9 @@ import { createPinia } from 'pinia';
 import components from '@/components/UI';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import ColorTextDirective from './components/directives/ColorTextDirective';
+import GlobalMixin from './components/mixins/GlobalMixin';
+
 
 
 const pinia = createPinia();
@@ -18,6 +21,9 @@ const app = createApp(App)
 components.forEach(component => {
     app.component(component.name, component);
 });
+
+app.directive('text-color', ColorTextDirective);
+app.mixin(GlobalMixin);
 
 app
     .use(router)

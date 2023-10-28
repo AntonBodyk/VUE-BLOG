@@ -62,12 +62,13 @@ import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 import { useCommentStore } from '@/store/commentStore';
+import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
 
 export default{
     components:{
         LikeOutlined, DislikeOutlined, CommentOutlined, PostForm, CreateNewPost
     },
-    mixins:['myMixin'],
+    mixins: [LifecycleLoggerMixin],
     data(){
         return{
             isDarkTheme: false,
@@ -232,8 +233,7 @@ export default{
     },
     mounted(){
         this.getPosts();
-        // this.greetMixin();
-        // this.showAlert('This is an alert from the mixin');
+        
     },
 }
 </script>

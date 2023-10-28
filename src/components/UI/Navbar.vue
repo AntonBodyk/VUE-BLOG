@@ -24,9 +24,8 @@ import {UserOutlined} from '@ant-design/icons-vue';
 import {useThemeStore} from "@/store/colorStore";
 import { instance } from '@/axios/axiosInstance';
 import { useUserStore } from '@/store/user';
-import { computed } from 'vue';
-import { ref } from 'vue';
 import { message } from 'ant-design-vue';
+
 export default{
     components:{
         UserOutlined

@@ -9,7 +9,7 @@
       >
         <a-list-item v-for="comment in comments" :key="comment.id">
           <a-comment
-            :author="comment.author"
+            :author="comment.user_name"
             :content="comment.comment_text"
             :datetime="comment.datetime"
           />
@@ -32,6 +32,7 @@
   
   <script>
   import { useCommentStore } from '@/store/commentStore';
+  import { useUserStore } from '@/store/user';
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { instance } from '@/axios/axiosInstance';
@@ -44,6 +45,7 @@
         comments: [],
         submitting: false,
         value: '',
+        userName: ''
       };
     },
     props: {
@@ -62,14 +64,21 @@
         }
   
         this.submitting = true;
+
+        const userStore = useUserStore();
+        // console.log(userStore.user.name);
+        
+        const userID = userStore.user.id;
   
         try {
           const response = await instance.post('/comments', {
             comment_text: this.value,
             post_id: this.postId,
-            user_name: this.user_name
+            user_name: this.userName,
+            user_id: userID
           });
-  
+          
+          console.log(response.data.data);
           
           this.comments.unshift(response.data.data);
 

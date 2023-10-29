@@ -1,24 +1,25 @@
 <template>
     <div>
       <a-list
-        v-if="comments.length"
-        :data-source="comments"
-        :header="`${comments.length} ${comments.length > 1 ? 'comments' : 'comment'}`"
+        v-if="commentsResponse && commentsResponse.length"
+        :data-source="commentsResponse"
+        :header="`${commentsResponse.length} ${commentsResponse.length > 1 ? 'comments' : 'comment'}`"
         item-layout="horizontal"
         class="comment-list"
       >
-        <a-list-item v-for="comment in comments" :key="comment.id">
+        <a-list-item v-for="comment in commentsResponse" :key="comment.id">
           <a-comment
-            :author="comment.user_name"
+            :author="comment.users.name"
             :content="comment.comment_text"
-            :datetime="comment.datetime"
+            :datetime="formattedDate(comment.users.created_at)"
           />
         </a-list-item>
       </a-list>
       <a-comment class="comment">
         <template #content>
           <a-form-item>
-            <a-textarea v-model:value="value" :rows="4" />
+            <!-- <a-textarea v-model:value="value" :rows="4" /> -->
+            <quill-editor v-model:content="value" contentType="text" theme="snow"></quill-editor>
           </a-form-item>
           <a-form-item>
             <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
@@ -36,6 +37,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { instance } from '@/axios/axiosInstance';
+  import moment from 'moment';
   
   dayjs.extend(relativeTime);
   
@@ -52,10 +54,11 @@
       postId: {
         type: String,
         required: true
+      },
+      commentsResponse:{
+        type: Array,
+        required: true
       }
-    },
-    created() {
-      this.loadCommentsFromLocalStorage();
     },
     methods: {
       async handleSubmit() {
@@ -74,18 +77,16 @@
           const response = await instance.post('/comments', {
             comment_text: this.value,
             post_id: this.postId,
-            user_name: this.userName,
             user_id: userID
           });
           
-          console.log(response.data.data);
           
-          this.comments.unshift(response.data.data);
+          this.commentsResponse.push(response.data.data);
 
-          const commentStorageKey = `post_${this.postId}_comments`;
-          localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
+          // const commentStorageKey = `post_${this.postId}_comments`;
+          // localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
   
-          this.saveCommentsToLocalStorage();
+          // this.saveCommentsToLocalStorage();
           
           const commentStore = useCommentStore();
           commentStore.incrementCommentCount(this.postId);
@@ -97,25 +98,10 @@
           this.submitting = false;
         }
       },
-      saveCommentsToLocalStorage() {
-    // Use a unique storage key for this post's comments
-        const commentStorageKey = `post_${this.postId}_comments`;
-        localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
-      },
-      loadCommentsFromLocalStorage() {
-        // Use a unique storage key for this post's comments
-        const commentStorageKey = `post_${this.postId}_comments`;
-        const storedComments = localStorage.getItem(commentStorageKey);
-        if (storedComments) {
-          this.comments = JSON.parse(storedComments);
-        }
-      },
-    },
-    created() {
-      // Use the unique storage key for this post's comments
-      const commentStorageKey = `post_${this.postId}_comments`;
-      this.loadCommentsFromLocalStorage(commentStorageKey);
-    },
+      formattedDate(created_at){
+            return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
+      }
+    }
   };
   </script>
 

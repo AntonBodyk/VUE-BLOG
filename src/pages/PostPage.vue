@@ -15,7 +15,7 @@
                 </div>
             </div>
         
-        <comments :postId="$route.params.id"></comments>
+        <comments :postId="$route.params.id" :commentsResponse="commentsResponse"></comments>
     </div>
 </template>
 
@@ -29,27 +29,33 @@ export default {
     },
     data() {
         return {
-            post: {} 
+            post: {},
+            commentsResponse: {}
         };
     },
     methods:{
         async getPost(id){
             try {
-                const response = await instance.get(`/posts/${id}`);
                 
-                this.post = response.data.data;
+                const [postResponse, commentsResponse] = await Promise.all([
+                    instance.get(`/posts/${id}`),
+                    instance.get(`/comments/${id}`),
+                ]);
+                this.post = postResponse.data.data;
                 console.log(this.post)
+                this.commentsResponse = commentsResponse.data;
+                console.log(commentsResponse.data)
             } catch (error) {
                 console.error('Error fetching post data', error);
             }
-        }
+        },
         // formattedDate(created_at){
         //     return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
         // }
     },
     created() {
         this.getPost(this.$route.params.id);
-    },
+    }
 }
 </script>
 

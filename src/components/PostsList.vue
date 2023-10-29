@@ -8,7 +8,7 @@
         <default-button @click="userHandler">Привествие</default-button>
         <div :class="{ 'dark-theme': isDarkTheme }" class="post" v-for="post in pagedPosts" :key="post.id">
             <transition-group name="post-list">
-            <div @click="$router.push(`/${post.id}`)">
+            <div @click="navigateToPost(post.id)">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <div class="post-create-date">
                     Дата создания поста: {{ formattedDate(post.created_at) }}
@@ -24,7 +24,7 @@
             <div class="post-icons">
                     <div class="post-comment">
                         <CommentOutlined class="comment"/>
-                        <span>{{ commentCount(post) }}</span>
+                        <span>{{ this.comments.length }}</span>
                     </div>
                     <div class="post-like">
                         <LikeOutlined class="like" @click="likePost(post)"/>
@@ -79,18 +79,32 @@ export default{
             currentPage: 1,
             totalPosts: 0,
             userHello: true,
-            componentData: 'Данные компонента'
+            componentData: 'Данные компонента',
+            comments: []
         }
     },
     methods:{
         showModalCreate(){
-            this.modalVisible = true;
+            if(localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null){
+                this.modalVisible = true;
+            }else{
+                message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
+                window.location.href = '#/sign';
+            }
         },
         hideModal(){
             this.modalVisible = false;
         },
         toggleColor() {
             this.isDarkTheme = !this.isDarkTheme;
+        },
+        navigateToPost(postId) {
+            if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
+                this.$router.push(`/${postId}`);
+            } else {
+                message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
+                window.location.href = '#/sign';
+            }
         },
         async getPosts() {
             try {
@@ -119,7 +133,6 @@ export default{
             }
         },
         async addPost(newPost){
-                if(newPost.title && newPost.body && newPost.category !== ''){
                     try{
                         const response = await instance.post('/posts', {
                             title: newPost.title,
@@ -142,9 +155,6 @@ export default{
                     }catch{
                         message.error('Ошибка');
                     }
-                }else{
-                    message.error('Заполните данные');
-                }
                 
                 this.modalVisible = false;
         },
@@ -233,7 +243,6 @@ export default{
     },
     mounted(){
         this.getPosts();
-        
     },
 }
 </script>

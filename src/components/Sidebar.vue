@@ -56,7 +56,7 @@ export default {
 
 <style scoped>
 .sidebar{
-    margin: 195px 0 0 150px;
+    margin: 195px 0 0 40px;
     width: 400px;
     height: 700px;
     background-color: white;

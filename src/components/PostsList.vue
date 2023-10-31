@@ -2,7 +2,7 @@
     <div v-if="posts.length > 0">
         <h3>Список постов</h3>
         <create-new-post v-model:open="modalVisible">
-            <post-form @create="addPost" :hideModal="hideModal" :posts="posts"></post-form>
+            <PostForm @create="addPost" :hideModal="hideModal" :posts="posts"/>
         </create-new-post>
         <default-button @click="showModalCreate">Создать пост</default-button>
         <default-button @click="userHandler">Привествие</default-button>
@@ -24,7 +24,7 @@
             <div class="post-icons">
                     <div class="post-comment">
                         <CommentOutlined class="comment"/>
-                        <span>{{ this.comments.length }}</span>
+                        <span>{{ commentCounts[post.id] || 0 }}</span>
                     </div>
                     <div class="post-like">
                         <LikeOutlined class="like" @click="likePost(post)"/>
@@ -61,7 +61,6 @@ import PostForm from './PostForm.vue';
 import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
-import { useCommentStore } from '@/store/commentStore';
 import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
 
 export default{
@@ -80,7 +79,9 @@ export default{
             totalPosts: 0,
             userHello: true,
             componentData: 'Данные компонента',
-            comments: []
+            comments: [],
+            count: 0,
+            commentCounts: {}
         }
     },
     methods:{
@@ -108,9 +109,9 @@ export default{
         },
         async getPosts() {
             try {
-                const [postsResponse, likesResponse] = await Promise.all([
+                const [postsResponse, commentsResponse] = await Promise.all([
                     instance.get('/posts'),
-                    instance.get('/likes'),
+                    instance.get('/comments'),
                 ]);
                 
                 this.posts = postsResponse.data;
@@ -125,6 +126,17 @@ export default{
                     
                     post.likes_count = likesCount !== undefined ? likesCount : 0;
                     post.dislikes_count = dislikesCount !== undefined ? dislikesCount : 0;
+                });
+
+
+                commentsResponse.data.forEach((comment) => {
+                    const postId = comment.post_id;
+
+                    if (this.commentCounts[postId]) {
+                        this.commentCounts[postId] += 1;
+                    } else {
+                        this.commentCounts[postId] = 1;
+                    }
                 });
 
                 console.log(postsResponse);
@@ -220,10 +232,6 @@ export default{
         },
         userHandler(){
             this.clickHandler();
-        },
-        commentCount(post) {
-            const commentStore = useCommentStore();
-            return commentStore.getCommentCount(post.id);
         },
     },
     computed:{

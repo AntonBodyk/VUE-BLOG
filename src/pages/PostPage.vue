@@ -1,7 +1,12 @@
 <template>
     <div>
-        <h1>Страница поста: {{ $route.params.id }}</h1>
-        <div class="post">
+        <div v-if="postNotFound">
+            <not-found-page></not-found-page>
+        </div>
+        <div v-else>
+            <div class="post-page">
+        <!-- <h1>Страница поста: {{ $route.params.id }}</h1> -->
+        <div v-if="post" class="post">
                 <h2 class="post-title">{{ post.title }}</h2>
                 <!-- <div class="post-create-date">
                     Дата создания поста: {{ formattedDate(post.created_at) }}
@@ -17,36 +22,45 @@
         
         <comments :postId="$route.params.id" :commentsResponse="commentsResponse"></comments>
     </div>
+        </div>
+    </div>
+    
 </template>
 
 <script>
 import Comments from '@/components/Comments.vue';
+import NotFoundPage from './NotFoundPage.vue';
 import { instance } from '@/axios/axiosInstance';
 // import moment from 'moment';
 export default {
     components:{
-        Comments
+        Comments, NotFoundPage
     },
     data() {
         return {
             post: {},
-            commentsResponse: {}
+            commentsResponse: {},
+            postNotFound: false
         };
     },
     methods:{
-        async getPost(id){
+        async getPost(id) {
             try {
-                
                 const [postResponse, commentsResponse] = await Promise.all([
                     instance.get(`/posts/${id}`),
                     instance.get(`/comments/${id}`),
                 ]);
+
                 this.post = postResponse.data.data;
-                console.log(this.post)
+                console.log(this.post);
                 this.commentsResponse = commentsResponse.data;
-                console.log(commentsResponse.data)
+                console.log(commentsResponse.data);
             } catch (error) {
-                console.error('Error fetching post data', error);
+                if (error.response.status  === 404) {
+                    this.postNotFound = true;
+                } else {
+                    console.error('Error fetching post data', error);
+                }
             }
         },
         // formattedDate(created_at){
@@ -60,25 +74,36 @@ export default {
 </script>
 
 <style scoped>
+.post-page{
+    background-color: aliceblue;
+    padding-top: 50px;
+}
+
 h1{
-    margin: 20px 0 0 100px;
+    padding: 20px 0 0 100px;
     color: darkcyan;
 }
 
 .post{
     width: 700px;
-    max-height: 500px;
+    max-height: 600px;
     background-color: white;
     border-radius: 10px;
-    margin: 20px 0 0 100px;
+    margin-left: 27%;
     cursor: pointer;
+    margin-bottom: 30px;
+    box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+.post h2{
+    padding: 10px 0 0 10px;
 }
 .post-body{
     max-width: 680px;
+    padding: 10px 0 10px 10px;
 }
 
 .post-category{
-    margin: 10px 0 10px 0px;
+    padding: 10px 0 0 10px;
     font-size: 15px;
     color: cornflowerblue;
 }

@@ -9,6 +9,9 @@
             <a-space wrap>
                 <a-button @click="toggleTheme">Сменить цвет</a-button>
             </a-space>
+            <a-space wrap>
+                <a-button @click="$router.push('/admin')">Админ-панель</a-button>
+            </a-space>
         </div>
         <a-modal v-model:open="open" class="registration" :width="modalWidth">
             <template #footer>
@@ -107,7 +110,7 @@ export default{
     padding-left: 100px;
 }
 .navbar-btns{
-    margin: 9px 0 0 50%;
+    margin: 9px 0 0 45%;
 }
 .navbar-btns button{
     margin-left: 15px;

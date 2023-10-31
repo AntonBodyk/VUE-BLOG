@@ -1,8 +1,7 @@
 <template>
     <div class="app">
-        <navbar :toggleTheme="toggleTheme"></navbar>
+        <Navbar :toggleTheme="toggleTheme" />
         <router-view></router-view>
-        <main-page></main-page>
         <!-- <task-named-slot>
             <template v-slot:header>
                 <h2>Custom Header</h2>
@@ -58,28 +57,59 @@
         <!-- <div>
             <button @click="sayHello">Say Hello</button>
         </div> -->
+
+        <!-- 5 блок заданий -->
+        <!-- <Task5Form/> -->
+        <!-- <AnotherTask5Form/> -->
+        <!-- <CounterTask5Vue/> -->
+        <!-- <ToggleComponentTask5/> -->
+        <!-- <TogglerComponent/> -->
+        <!-- <div>
+            <h2>Select Component Example</h2>
+            <SelectComponent v-model="selectedOption" :options="options" />
+            <p>Selected Option in Parent: {{ selectedOption }}</p>
+        </div> -->
+        <!-- <SelectComponent :selectedOption='selectedOption' :options="options"/> -->
+        <!-- <div>
+            <h2>Dropdown Select Example</h2>
+            <DropdownSelect v-model="selectedOption" :options="dropdownOptions" />
+            <p>Selected Option in Parent: {{ selectedOption }}</p>
+        </div>
+        <CustomSelectComponent :options="options" v-model="selectedOption"/> -->
     </div>
     
 </template>
 
 <script>
 import Navbar from './components/UI/Navbar.vue';
-import TaskNamedSlot from "@/components/TaskNamedSlot.vue";
-import FallbackContentSlot from "@/components/FallbackContentSlot.vue";
-import ChildSlotComponent from "@/components/ChildSlotComponent.vue";
+import TaskNamedSlot from "@/components/tasksComponents/TaskNamedSlot.vue";
+import FallbackContentSlot from "@/components/tasksComponents/FallbackContentSlot.vue";
+import ChildSlotComponent from "@/components/tasksComponents/ChildSlotComponent.vue";
 import ModalSlot from "@/components/ModalSlot.vue";
 import ValueUpdateDirictive from '@/components/directives/ValueUpdateDirictive.js';
 import TooltipDirective from "@/components/directives/TooltipDirective";
+import Task5Form from "@/components/tasksComponents/Task5From.vue";
+import AnotherTask5Form from './components/tasksComponents/AnotherTask5Form.vue';
+import CounterTask5Vue from './components/tasksComponents/CounterTask5.vue';
+import ToggleComponentTask5 from './components/tasksComponents/ToggleComponentTask5.vue';
+import TogglerComponent from './components/tasksComponents/TogglerComponent.vue';
+import SelectComponent from './components/tasksComponents/SelectComponent.vue';
+import CustomSelectComponent from './components/tasksComponents/CustomSelectComponent.vue';
 
 export default{
     components:{
-        Navbar, TaskNamedSlot, FallbackContentSlot, ChildSlotComponent, ModalSlot, ValueUpdateDirictive, TooltipDirective
+        Navbar, TaskNamedSlot, FallbackContentSlot, 
+        ChildSlotComponent, ModalSlot, ValueUpdateDirictive, 
+        TooltipDirective, Task5Form, AnotherTask5Form, CounterTask5Vue,
+        ToggleComponentTask5, TogglerComponent, SelectComponent, CustomSelectComponent
     },
     data() {
         return {
             isModalVisible: false,
             directiveValue: "Ой",
-            elementTightened: false
+            elementTightened: false,
+            selectedOption: 'Option 1',
+            options: ['Option 1', 'Option 2', 'Option 3'],
         };
     },
     methods: {

@@ -1,5 +1,13 @@
 <template>
-    <div>
+    <div class="comments">
+      <!-- <a-list
+        v-if="commentsResponse && commentsResponse.length"
+        :data-source="commentsResponse"
+        :header="`${commentsResponse.length} ${commentsResponse.length > 1 ? 'comments' : 'comment'}`"
+        item-layout="horizontal"
+        class="comment-list"
+      > -->
+
       <a-list
         v-if="commentsResponse && commentsResponse.length"
         :data-source="commentsResponse"
@@ -15,6 +23,9 @@
           />
         </a-list-item>
       </a-list>
+      <div class="no-comments" v-else>
+        <p>No comments</p>
+      </div>
       <a-comment class="comment">
         <template #content>
           <a-form-item>
@@ -106,12 +117,28 @@
   </script>
 
 <style scoped>
-.comment{
-    width: 500px;
-    margin-left: 90px;
-}
 .comment-list{
-    width: 500px;
-    margin-left: 100px;
+    margin-top: 30px;
+    /* margin-left: 90px; */
+}
+
+.comment{
+  max-width: 500px;
+  margin-left: 80px;
+  
+}
+.comments{
+    width: 700px;
+    margin-left: 27%;
+    background-color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+.no-comments{
+  /* width: 700px;
+  height: 200px;
+  margin-bottom: 200px;
+  box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1); */
 }
 </style>

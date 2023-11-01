@@ -35,8 +35,8 @@
             </a-auto-complete>
             </a-form-item>
 
-            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' }, {validator: validateBody}]">
-                <quill-editor v-model:content="this.post.body" contentType="text" theme="snow"></quill-editor>
+            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' }, {validator: handleTextChange}]">
+                <quill-editor v-model:content="this.post.body" contentType="text" theme="snow" @text-change="handleTextChange"></quill-editor>
             </a-form-item>
             
 
@@ -104,16 +104,6 @@ export default{
             return res;
         },
         validateCategory(rule, value) {
-            // return new Promise((resolve, reject) => {
-            //     const namePattern = /^[А-ЯA-Z][а-яА-ЯA-Za-z\s]*$/;
-            //     const containsNumber = /\d/.test(value);
-
-            //     if (!containsNumber && namePattern.test(value)) {
-            //         resolve(); 
-            //     } else {
-            //         reject('Название категории должно начинаться с большой буквы и не содержать чисел!');
-            //     }
-            // });
             if(value){
                 const categoryPattern = /^[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s-]*$/;
                 const containsNumber = /\d/.test(value);
@@ -127,18 +117,30 @@ export default{
                     return Promise.resolve();
             }
         },
-        validateBody(rule, value) {
-            if(value){
-                const bodyPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/
-                if (bodyPattern.test(value)) {
+        // validateBody(rule, value) {
+        //     if(value){
+        //         const bodyPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/
+        //         if (bodyPattern.test(value)) {
+        //             return Promise.resolve(); 
+        //         } else {
+        //             return Promise.reject('Текст поста должен начинаться с большой буквы!');
+        //         }
+        //         }else{
+        //             return Promise.resolve();
+        //         }
+        // },
+        handleTextChange(){
+            if(this.post.body){
+                const namePattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/
+                if (namePattern.test(this.post.body)) {
                     return Promise.resolve(); 
                 } else {
-                    return Promise.reject('Текст поста должен начинаться с большой буквы!');
+                    return Promise.reject('Название должно начинаться с большой буквы!');
                 }
-                }else{
+            }else{
                     return Promise.resolve();
-                }
-        },
+            }
+        }
     }
 }
 </script>

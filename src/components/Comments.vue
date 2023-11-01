@@ -29,7 +29,6 @@
       <a-comment class="comment">
         <template #content>
           <a-form-item>
-            <!-- <a-textarea v-model:value="value" :rows="4" /> -->
             <quill-editor v-model:content="value" contentType="text" theme="snow"></quill-editor>
           </a-form-item>
           <a-form-item>
@@ -67,7 +66,7 @@
         required: true
       },
       commentsResponse:{
-        type: Array,
+        type: Object,
         required: true
       }
     },
@@ -80,9 +79,9 @@
         this.submitting = true;
 
         const userStore = useUserStore();
-        // console.log(userStore.user.name);
         
         const userID = userStore.user.id;
+        this.userName = userStore.user.name;
   
         try {
           const response = await instance.post('/comments', {
@@ -93,11 +92,7 @@
           
           
           this.commentsResponse.push(response.data.data);
-
-          // const commentStorageKey = `post_${this.postId}_comments`;
-          // localStorage.setItem(commentStorageKey, JSON.stringify(this.comments));
-  
-          // this.saveCommentsToLocalStorage();
+          
           
           const commentStore = useCommentStore();
           commentStore.incrementCommentCount(this.postId);
@@ -119,12 +114,11 @@
 <style scoped>
 .comment-list{
     margin-top: 30px;
-    /* margin-left: 90px; */
 }
 
 .comment{
   max-width: 500px;
-  margin-left: 80px;
+  margin-left: 20px;
   
 }
 .comments{
@@ -135,10 +129,11 @@
     cursor: pointer;
     box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
 }
-.no-comments{
-  /* width: 700px;
-  height: 200px;
-  margin-bottom: 200px;
-  box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1); */
+
+.no-comments p{
+  font-size: 30px;
+  margin: 70px 0 0 30px;
+  padding-top: 10px;
 }
+
 </style>

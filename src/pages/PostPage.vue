@@ -39,8 +39,8 @@ export default {
     data() {
         return {
             post: {},
-            commentsResponse: {},
-            postNotFound: false
+            commentsResponse: [],
+            postNotFound: false,
         };
     },
     methods:{
@@ -54,7 +54,7 @@ export default {
                 this.post = postResponse.data.data;
                 console.log(this.post);
                 this.commentsResponse = commentsResponse.data;
-                console.log(commentsResponse.data);
+                console.log(commentsResponse.data.users);
             } catch (error) {
                 if (error.response.status  === 404) {
                     this.postNotFound = true;
@@ -77,6 +77,7 @@ export default {
 .post-page{
     background-color: aliceblue;
     padding-top: 50px;
+    min-height: 700px;
 }
 
 h1{

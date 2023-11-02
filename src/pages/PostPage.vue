@@ -8,10 +8,9 @@
         <!-- <h1>Страница поста: {{ $route.params.id }}</h1> -->
         <div v-if="post" class="post">
                 <h2 class="post-title">{{ post.title }}</h2>
-                <!-- <div class="post-create-date">
+                <div class="post-create-date">
                     Дата создания поста: {{ formattedDate(post.created_at) }}
-                </div> -->
-                <h3>{{ post.id }}</h3>
+                </div>
                 <div class="post-category">
                     Тема: {{ post.category }}
                 </div>
@@ -31,7 +30,8 @@
 import Comments from '@/components/Comments.vue';
 import NotFoundPage from './NotFoundPage.vue';
 import { instance } from '@/axios/axiosInstance';
-// import moment from 'moment';
+import moment from 'moment';
+
 export default {
     components:{
         Comments, NotFoundPage
@@ -51,7 +51,7 @@ export default {
                     instance.get(`/comments/${id}`),
                 ]);
 
-                this.post = postResponse.data.data;
+                this.post = postResponse.data;
                 console.log(this.post);
                 this.commentsResponse = commentsResponse.data;
                 console.log(commentsResponse.data.users);
@@ -63,9 +63,9 @@ export default {
                 }
             }
         },
-        // formattedDate(created_at){
-        //     return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
-        // }
+        formattedDate(created_at){
+            return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
+        }
     },
     created() {
         this.getPost(this.$route.params.id);
@@ -107,6 +107,12 @@ h1{
     padding: 10px 0 0 10px;
     font-size: 15px;
     color: cornflowerblue;
+}
+
+.post-create-date{
+    margin: 10px 0 10px 10px;
+    font-size: 15px;
+    color: cadetblue;
 }
 </style>
 

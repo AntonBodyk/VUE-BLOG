@@ -43,7 +43,7 @@ export default {
         },
         filteredAndSortedByLikes() {
             return this.popularPosts = this.popularPosts
-                    .filter(post => post.likes_count > 1)
+                    .filter(post => post.likes_count > 4)
                     .sort((a, b) => b.likes_count - a.likes_count);
         }
     },

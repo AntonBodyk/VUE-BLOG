@@ -1,14 +1,16 @@
 <template>
     <div>
         <h1 class="sign">Добавить пост</h1>
-        <a-form
+        <!-- <div v-if="!formSubmitted"> -->
+            <a-form
             name="basic"
             :model="post"
             :label-col="{ span: 8 }"
             :wrapper-col="{ span: 16 }"
             autocomplete="off"
             style="width: 600px; margin-left: 40px; "
-            @submit.prevent="addPost"
+            ref="form"
+            @submit.prevent="submitForm"
             >
             <a-form-item
                 name="title"
@@ -35,8 +37,11 @@
             </a-auto-complete>
             </a-form-item>
 
-            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' }, {validator: handleTextChange}]">
-                <quill-editor v-model:content="this.post.body" contentType="text" theme="snow" @text-change="handleTextChange"></quill-editor>
+            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' },{
+                pattern: /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/,
+                message: 'Текст поста должен начинаться с большой буквы',
+            }]">
+                <quill-editor v-model:content="this.post.body" contentType="text" theme="snow" ref="quillEditor"></quill-editor>
             </a-form-item>
             
 
@@ -44,16 +49,21 @@
                 <a-button type="primary" html-type="submit" style="margin-left: -70px; width: 150px; height: 50px;">Добавить</a-button>
             </a-form-item>
         </a-form>
+        </div>
+    
         
-    </div>
+    <!-- </div> -->
 </template>
 
 <script>
-
+import { ref } from 'vue';
+ 
+const quillEditor = ref(null);
 export default{
     props:{
         posts:{
-            type: Array
+            type: Array,
+            required: true
         }
     },
     data(){
@@ -63,18 +73,37 @@ export default{
                 body: '',
                 category: '',
             },
-            autocompleteOptions: []
+            autocompleteOptions: [],
+            // formSubmitted: false
         }
     },
     methods:{
-        addPost(){
-            this.$emit('create', this.post);
-            this.post = {
-                title: '',
-                body: '',
-                category: ''
-            }
+        submitForm() {
+            const valid = this.$refs.form.validate();
+                
+                if (valid) {
+                
+                    this.$emit('create', this.post);
+                    
+                    
+                    this.clearQuillEditor();
+
+                    this.post = {
+                        title: '',
+                        body: '',
+                        category: '',
+                    };
+                }
+            
         },
+        // addPost(){
+        //     this.$emit('create', this.post);
+        //     this.post = {
+        //         title: '',
+        //         body: '',
+        //         category: ''
+        //     }
+        // },
         handleSearch() {
             const searchQuery = this.post.category;
             
@@ -100,7 +129,6 @@ export default{
         filterAutocomplete(){
             const table = {};
             const res = this.autocompleteOptions.filter(({value}) =>(!table[value] && (table[value] = 1)));
-            console.log(res)
             return res;
         },
         validateCategory(rule, value) {
@@ -117,30 +145,10 @@ export default{
                     return Promise.resolve();
             }
         },
-        // validateBody(rule, value) {
-        //     if(value){
-        //         const bodyPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/
-        //         if (bodyPattern.test(value)) {
-        //             return Promise.resolve(); 
-        //         } else {
-        //             return Promise.reject('Текст поста должен начинаться с большой буквы!');
-        //         }
-        //         }else{
-        //             return Promise.resolve();
-        //         }
-        // },
-        handleTextChange(){
-            if(this.post.body){
-                const namePattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/
-                if (namePattern.test(this.post.body)) {
-                    return Promise.resolve(); 
-                } else {
-                    return Promise.reject('Название должно начинаться с большой буквы!');
-                }
-            }else{
-                    return Promise.resolve();
-            }
-        }
+        clearQuillEditor() {
+            this.$refs.quillEditor.setContents('');
+        },
+    
     }
 }
 </script>

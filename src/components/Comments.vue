@@ -1,13 +1,5 @@
 <template>
     <div class="comments">
-      <!-- <a-list
-        v-if="commentsResponse && commentsResponse.length"
-        :data-source="commentsResponse"
-        :header="`${commentsResponse.length} ${commentsResponse.length > 1 ? 'comments' : 'comment'}`"
-        item-layout="horizontal"
-        class="comment-list"
-      > -->
-
       <a-list
         v-if="commentsResponse && commentsResponse.length"
         :data-source="commentsResponse"
@@ -19,7 +11,7 @@
           <a-comment
             :author="comment.users.name"
             :content="comment.comment_text"
-            :datetime="formattedDate(comment.users.created_at)"
+            :datetime="formattedDate(comment.created_at)"
           />
         </a-list-item>
       </a-list>
@@ -29,7 +21,7 @@
       <a-comment class="comment">
         <template #content>
           <a-form-item>
-            <quill-editor v-model:content="value" contentType="text" theme="snow"></quill-editor>
+            <quill-editor v-model:content="value" contentType="text" theme="snow" ref="quillEditor"></quill-editor>
           </a-form-item>
           <a-form-item>
             <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
@@ -48,16 +40,18 @@
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { instance } from '@/axios/axiosInstance';
   import moment from 'moment';
+  import { ref } from 'vue';
   
   dayjs.extend(relativeTime);
-  
+  const quillEditor = ref(null);
   export default {
     data() {
       return {
         comments: [],
         submitting: false,
         value: '',
-        userName: ''
+        userName: '',
+        quill: null
       };
     },
     props: {
@@ -90,14 +84,24 @@
             user_id: userID
           });
           
-          
-          this.commentsResponse.push(response.data.data);
+          const newComment = {
+              id: response.data.id,
+              users: {
+                name: this.userName, 
+                created_at: moment().format(), 
+              },
+              comment_text: this.value, 
+          };
+
+          this.commentsResponse.push(newComment);
           
           
           const commentStore = useCommentStore();
           commentStore.incrementCommentCount(this.postId);
 
-          this.value = '';
+        
+          this.clearQuillEditor();
+       
         } catch (error) {
           console.error('Error adding comment', error);
         } finally {
@@ -106,7 +110,10 @@
       },
       formattedDate(created_at){
             return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
-      }
+      },
+      clearQuillEditor() {
+        this.$refs.quillEditor.setContents('');
+      },
     }
   };
   </script>

@@ -2,7 +2,7 @@
     <div v-if="posts.length > 0">
         <h3>Список постов</h3>
         <create-new-post v-model:open="modalVisible">
-            <PostForm @create="addPost" :hideModal="hideModal" :posts="posts"/>
+            <PostForm @create="addPost" :posts="posts"/>
         </create-new-post>
         <default-button @click="showModalCreate">Создать пост</default-button>
         <default-button @click="userHandler">Привествие</default-button>
@@ -62,6 +62,7 @@ import CreateNewPost from '@/components/UI/CreateNewPost.vue';
 import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
+import {useUserStore} from '@/store/user';
 
 export default{
     components:{
@@ -115,6 +116,7 @@ export default{
                 ]);
                 
                 this.posts = postsResponse.data;
+                console.log(this.posts)
                 this.totalPosts = this.posts.length;
 
                 const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
@@ -145,30 +147,35 @@ export default{
             }
         },
         async addPost(newPost){
-                    try{
-                        const response = await instance.post('/posts', {
-                            title: newPost.title,
-                            body: newPost.body,
-                            category: newPost.category,
-                        });
+                const newUser = useUserStore();
 
-                        if (response.status === 201) { 
-                            const createdPost = response.data.data;
+                try{
+                    const response = await instance.post('/posts', {
+                        id: newPost.id,
+                        title: newPost.title,
+                        body: newPost.body,
+                        category: newPost.category,
+                        user_id: newUser.user.id
+                    });
+
+                    if (response.status === 201) { 
+                        const createdPost = response.data.data;
 
 
-                            createdPost.likes_count = 0;
-                            createdPost.dislikes_count = 0;
+                        createdPost.likes_count = 0;
+                        createdPost.dislikes_count = 0;
 
-                            this.posts.push(createdPost); 
-                            message.success('Пост успешно создан.');
-                        } else {
-                            message.error('Ошибка при создании поста.');
-                        }
-                    }catch{
-                        message.error('Ошибка');
+                        this.posts.push(createdPost); 
+                        message.success('Пост успешно создан.');
+                        this.modalVisible = false;
+                    } else {
+                        message.error('Ошибка при создании поста.');
                     }
+                }catch{
+                    message.error('Ошибка');
+                }
                 
-                this.modalVisible = false;
+                
         },
         async removePost(postId){
             try{
@@ -315,7 +322,6 @@ h3{
 .comment{
     font-size: 20px;
     cursor: pointer;
-    /* text-decoration: none; */
 }
 .post-delete{
     margin: -25px 0 0px 60%;

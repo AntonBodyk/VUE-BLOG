@@ -1,17 +1,17 @@
 <template>
     <div>
         <h1 class="sign">Добавить пост</h1>
-        <!-- <div v-if="!formSubmitted"> -->
             <a-form
-            name="basic"
-            :model="post"
-            :label-col="{ span: 8 }"
-            :wrapper-col="{ span: 16 }"
-            autocomplete="off"
-            style="width: 600px; margin-left: 40px; "
-            ref="form"
-            @submit.prevent="submitForm"
-            >
+                name="basic"
+                ref="form"
+                :model="post"
+                :label-col="{ span: 8 }"
+                :wrapper-col="{ span: 16 }"
+                autocomplete="off"
+                style="width: 600px; margin-left: 40px; "
+                
+                @submit.prevent="submitForm"
+                >
             <a-form-item
                 name="title"
                 :rules="[{ required: true, message: 'Пожалуйста введите название поста!' }, {validator: validateTitle}]"
@@ -51,13 +51,10 @@
         </a-form>
         </div>
     
-        
-    <!-- </div> -->
 </template>
 
 <script>
 import { ref } from 'vue';
- 
 const quillEditor = ref(null);
 export default{
     props:{
@@ -74,40 +71,33 @@ export default{
                 category: '',
             },
             autocompleteOptions: [],
-            // formSubmitted: false
         }
     },
     methods:{
         submitForm() {
-            const valid = this.$refs.form.validate();
-                
-                if (valid) {
-                
+
+            
+            setTimeout(() => {
+                this.$refs.form.validate().then(res => {
                     this.$emit('create', this.post);
                     
-                    
-                    this.clearQuillEditor();
-
                     this.post = {
                         title: '',
                         body: '',
                         category: '',
                     };
-                }
+                    this.clearQuillEditor();
+                }).catch(error => {
+                    console.log(error)
+                
+                })
+            }, 0);
             
         },
-        // addPost(){
-        //     this.$emit('create', this.post);
-        //     this.post = {
-        //         title: '',
-        //         body: '',
-        //         category: ''
-        //     }
-        // },
         handleSearch() {
             const searchQuery = this.post.category;
             
-            const filteredPosts = this.posts.filter(post => post.category.includes(searchQuery));
+            const filteredPosts = this.posts.filter(post => post.category && post.category.includes(searchQuery));
             
             this.autocompleteOptions = filteredPosts.map(item => ({value: item.category, id: item.id}));
         },

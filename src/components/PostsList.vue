@@ -150,15 +150,15 @@ export default{
                 const newUser = useUserStore();
 
                 try{
-                    const response = await instance.post('/posts', {
-                        id: newPost.id,
-                        title: newPost.title,
-                        body: newPost.body,
-                        category: newPost.category,
-                        user_id: newUser.user.id
-                    });
-
-                    if (response.status === 201) { 
+                    if(newPost.id !== '' && newPost.title !== '' && newPost.body !== '' && newPost.category !== ''){
+                        const response = await instance.post('/posts', {
+                            id: newPost.id,
+                            title: newPost.title,
+                            body: newPost.body,
+                            category: newPost.category,
+                            user_id: newUser.user.id
+                        });
+                        if (response.status === 201) { 
                         const createdPost = response.data.data;
 
 
@@ -171,6 +171,10 @@ export default{
                     } else {
                         message.error('Ошибка при создании поста.');
                     }
+                    }
+                    
+
+                    
                 }catch{
                     message.error('Ошибка');
                 }

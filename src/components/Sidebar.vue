@@ -3,7 +3,7 @@
         <h1>Лучшие посты</h1>
 
         <div class="popular-posts" v-for="popularPost in filteredAndSortedByLikes()" :key="popularPost.id">
-            <h2 @click="$router.push(`/${popularPost.id}`)">{{ popularPost.title }}</h2>
+            <h2 @click="navigateToPost(popularPost)">{{ popularPost.title }}</h2>
             <p>
                 <a-space>
                     <icon :style="{ color: 'hotpink' }">
@@ -24,6 +24,7 @@
 
 <script>
 import { instance } from "../axios/axiosInstance";
+import { message } from 'ant-design-vue';
 import Icon from '@ant-design/icons-vue';
 export default {
     components:{
@@ -45,8 +46,17 @@ export default {
             return this.popularPosts = this.popularPosts
                     .filter(post => post.likes_count > 4)
                     .sort((a, b) => b.likes_count - a.likes_count);
-        }
+        },
+        navigateToPost(popularPost) {
+            if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
+                this.$router.push(`/${popularPost.id}`);
+            } else {
+                message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
+                window.location.href = '#/sign';
+            }
+        },
     },
+    
     mounted(){
         this.getPopularPosts();
         this.filteredAndSortedByLikes();

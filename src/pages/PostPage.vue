@@ -5,19 +5,18 @@
         </div>
         <div v-else>
             <div class="post-page">
-        <!-- <h1>Страница поста: {{ $route.params.id }}</h1> -->
-        <div v-if="post" class="post">
-                <h2 class="post-title">{{ post.title }}</h2>
-                <div class="post-create-date">
-                    Дата создания поста: {{ formattedDate(post.created_at) }}
-                </div>
-                <div class="post-category">
-                    Тема: {{ post.category }}
-                </div>
-                    <div class="post-body">
-                    <p>{{ post.body }}</p>
-                </div>
-            </div>
+                <div v-if="post" class="post">
+                        <h2 class="post-title">{{ post.title }}</h2>
+                        <div class="post-create-date">
+                            Дата создания поста: {{ formattedDate(post.created_at) }}
+                        </div>
+                        <div class="post-category">
+                            Тема: {{ post.category }}
+                        </div>
+                            <div class="post-body">
+                            <p>{{ post.body }}</p>
+                        </div>
+                    </div>
         
         <comments :postId="$route.params.id" :commentsResponse="commentsResponse"></comments>
     </div>
@@ -52,9 +51,9 @@ export default {
                 ]);
 
                 this.post = postResponse.data;
-                console.log(this.post);
+                
                 this.commentsResponse = commentsResponse.data;
-                console.log(commentsResponse.data.users);
+                
             } catch (error) {
                 if (error.response.status  === 404) {
                     this.postNotFound = true;
@@ -91,6 +90,7 @@ h1{
     background-color: white;
     border-radius: 10px;
     margin-left: 27%;
+    padding-left: 10px;
     cursor: pointer;
     margin-bottom: 30px;
     box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);

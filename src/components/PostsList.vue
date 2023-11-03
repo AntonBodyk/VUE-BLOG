@@ -37,9 +37,6 @@
                 </div>
             <div class="post-delete">
                 <a-space warp>
-                    <a-button class="change" @click="toggleColor" type="primary" ghost>Сменить цвет</a-button>
-                </a-space>
-                <a-space warp>
                     <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
                 </a-space>
             </div>
@@ -97,9 +94,6 @@ export default{
         hideModal(){
             this.modalVisible = false;
         },
-        toggleColor() {
-            this.isDarkTheme = !this.isDarkTheme;
-        },
         navigateToPost(postId) {
             if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
                 this.$router.push(`/${postId}`);
@@ -116,7 +110,6 @@ export default{
                 ]);
                 
                 this.posts = postsResponse.data;
-                console.log(this.posts)
                 this.totalPosts = this.posts.length;
 
                 const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
@@ -141,7 +134,6 @@ export default{
                     }
                 });
 
-                console.log(postsResponse);
             } catch (error) {
                 message.error('Ошибка'); 
             }
@@ -150,7 +142,7 @@ export default{
                 const newUser = useUserStore();
 
                 try{
-                    if(newPost.id !== '' && newPost.title !== '' && newPost.body !== '' && newPost.category !== ''){
+                    
                         const response = await instance.post('/posts', {
                             id: newPost.id,
                             title: newPost.title,
@@ -171,9 +163,6 @@ export default{
                     } else {
                         message.error('Ошибка при создании поста.');
                     }
-                    }
-                    
-
                     
                 }catch{
                     message.error('Ошибка');
@@ -183,12 +172,19 @@ export default{
         },
         async removePost(postId){
             try{
-                const deletePost = await instance.delete(`/posts/${postId}`)
-                if (deletePost.status === 200) {
-                    this.posts = this.posts.filter(post => post.id !== postId);
-                    message.success('Пост успешно удален');
-                } else {
-                    message.error('Ошибка при удалении поста');
+                const userStore = useUserStore(); 
+                const userRole = userStore.user ? userStore.user.role : null;
+                if(userRole === 'admin'){
+                    const deletePost = await instance.delete(`/posts/${postId}`)
+                    if (deletePost.status === 200) {
+                        this.posts = this.posts.filter(post => post.id !== postId);
+                        message.success('Пост успешно удален');
+                    } else {
+                        message.error('Ошибка при удалении поста');
+                    }
+                }else{
+                    message.error('Вы не являетесь админом!');
+                    window.location.href = '#/:pathMatch(.*)*';
                 }
 
             }catch{
@@ -196,38 +192,49 @@ export default{
             }
         },
         async likePost(post) {
-            try {
-                
-                const response = await instance.post('/likes', {post_id: post.id, likes: post.likes_count});
-                
-                post.likes_count += 1;
+            
+                if(localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null){
+                    try {
+                        const response = await instance.post('/likes', {post_id: post.id, likes: post.likes_count});
+                    
+                        post.likes_count += 1;
 
-                const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
-                likesData[post.id] = post.likes_count;
-                localStorage.setItem('likesData', JSON.stringify(likesData));
+                        const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
+                        likesData[post.id] = post.likes_count;
+                        localStorage.setItem('likesData', JSON.stringify(likesData));
 
-                await instance.put(`/posts/${post.id}`, { likes_count: post.likes_count });
-                
-            } catch (error) {
-                message.error('Ошибка');
-            }
+                        await instance.put(`/posts/${post.id}`, { likes_count: post.likes_count });
+                        
+                        } catch (error) {
+                            message.error('Ошибка');
+                        }
+                }else{
+                    message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
+                    window.location.href = '#/sign';
+                }
+               
         },
         async dislikePost(post) {
-            try {
+            if(localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null){
+                try {
                 
-                const response = await instance.post('/likes', {post_id: post.id, dislikes: post.dislikes_count});
-                
-                post.dislikes_count += 1;
+                    const response = await instance.post('/likes', {post_id: post.id, dislikes: post.dislikes_count});
+                    
+                    post.dislikes_count += 1;
 
-                const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
-                dislikesData[post.id] = post.dislikes_count;
-                localStorage.setItem('dislikesData', JSON.stringify(dislikesData));
+                    const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
+                    dislikesData[post.id] = post.dislikes_count;
+                    localStorage.setItem('dislikesData', JSON.stringify(dislikesData));
 
-                await instance.put(`/posts/${post.id}`, { dislikes_count: post.dislikes_count });
+                    await instance.put(`/posts/${post.id}`, { dislikes_count: post.dislikes_count });
                 
-            } catch (error) {
-                message.error('Ошибка');
-            }
+                } catch (error) {
+                    message.error('Ошибка');
+                }
+            }else{
+                    message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
+                    window.location.href = '#/sign';
+                }
         },
         handlePageChange(page) {
             this.currentPage = page;
@@ -301,6 +308,9 @@ h3{
 .post-icons{
     display: flex;
     margin: 100px 0 0 20px;
+}
+.delete{
+    margin-left: 100px;
 }
 .post-comment{
     margin-top: -3px;

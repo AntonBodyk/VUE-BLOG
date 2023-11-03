@@ -7,6 +7,7 @@ import AdminPage from '@/pages/AdminPage';
 import RegistrationPage from '@/pages/RegistrationPage';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useUserStore } from '@/store/user';
+import { message } from 'ant-design-vue';
 
 function adminRouteGuard(to, from, next) {
   const userStore = useUserStore(); 
@@ -16,7 +17,7 @@ function adminRouteGuard(to, from, next) {
     next();
   } else {
     next('/:pathMatch(.*)*');
-    alert('Вы не являетесь админом!');
+    message.error('Вы не являетесь админом!');
   }
 }
 

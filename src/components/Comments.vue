@@ -21,7 +21,11 @@
       <a-comment class="comment">
         <template #content>
           <a-form-item>
-            <quill-editor v-model:content="value" contentType="text" theme="snow" ref="quillEditor"></quill-editor>
+            <quill-editor v-model:content="value" contentType="text" theme="snow" ref="quillEditor"
+            :rules="[{ required: true, message: 'Пожалуйста, введите текст!' },{
+                pattern: /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/,
+                message: 'Комментарий должен начинаться с большой буквы',
+            }]">></quill-editor>
           </a-form-item>
           <a-form-item>
             <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
@@ -41,9 +45,11 @@
   import { instance } from '@/axios/axiosInstance';
   import moment from 'moment';
   import { ref } from 'vue';
+  import { message } from 'ant-design-vue';
   
   dayjs.extend(relativeTime);
   const quillEditor = ref(null);
+
   export default {
     data() {
       return {
@@ -67,6 +73,14 @@
     methods: {
       async handleSubmit() {
         if (!this.value) {
+          return;
+        }
+
+        const commentText = this.value;
+
+        
+        if (!/^[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/.test(commentText)) {
+          message.error('Комментарий должен начинаться с большой буквы');
           return;
         }
   

@@ -75,8 +75,6 @@ export default{
     },
     methods:{
         submitForm() {
-
-            
             setTimeout(() => {
                 this.$refs.form.validate().then(res => {
                     this.$emit('create', this.post);

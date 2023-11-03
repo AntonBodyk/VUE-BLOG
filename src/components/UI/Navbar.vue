@@ -47,8 +47,15 @@ export default{
             this.open = false;
         },
         toggleTheme() {
-            const themeStore = useThemeStore();
-            themeStore.toggleTheme();
+            const userStore = useUserStore(); 
+            const userRole = userStore.user ? userStore.user.role : null;
+            if(userRole === 'admin'){
+                const themeStore = useThemeStore();
+                themeStore.toggleTheme();
+            }else{
+                message.error('Вы не являетесь админом!');
+                window.location.href = '#/:pathMatch(.*)*';
+            }
         },
     },
     computed: {

@@ -70,7 +70,6 @@
             password: this.formState.password,
           });
   
-          console.log(response.data);
           if (response.data && response.data.token) {
            
             const token = response.data.token; 

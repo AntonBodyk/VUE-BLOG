@@ -24,28 +24,26 @@
 
 <script>
 import { instance } from "../axios/axiosInstance";
+import {usePostsLikesStore} from '@/store/likesStore';
 import { message } from 'ant-design-vue';
 import Icon from '@ant-design/icons-vue';
 export default {
     components:{
         Icon
     },
-    data(){
-        return{
-            popularPosts: []
-        }
-    },
     methods:{
         async getPopularPosts(){
             const response = await instance.get('/posts');
 
-            this.popularPosts = response.data;
+            const postsStore = usePostsLikesStore();
+            postsStore.setPosts(response.data);
             
         },
         filteredAndSortedByLikes() {
-            return this.popularPosts = this.popularPosts
-                    .filter(post => post.likes_count > 4)
-                    .sort((a, b) => b.likes_count - a.likes_count);
+            const postsStore = usePostsLikesStore();
+            return postsStore.posts
+                .filter(post => post.likes_count > 4)
+                .sort((a, b) => b.likes_count - a.likes_count);
         },
         navigateToPost(popularPost) {
             if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
@@ -56,7 +54,6 @@ export default {
             }
         },
     },
-    
     mounted(){
         this.getPopularPosts();
         this.filteredAndSortedByLikes();

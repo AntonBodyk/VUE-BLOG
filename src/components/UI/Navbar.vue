@@ -69,7 +69,6 @@ export default{
 
         const logout = async () => {
             const accessToken = localStorage.getItem('auth_token');
-            console.log(accessToken);
             const config = {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,

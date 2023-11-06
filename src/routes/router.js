@@ -1,7 +1,6 @@
 import MainPage from '@/pages/MainPage';
 import PostPage from '@/pages/PostPage';
 import SignPage from '@/pages/SignPage';
-import NotFoundPage from '@/pages/NotFoundPage';
 import AdminPage from '@/pages/AdminPage';
 
 import RegistrationPage from '@/pages/RegistrationPage';
@@ -12,7 +11,7 @@ import { message } from 'ant-design-vue';
 function adminRouteGuard(to, from, next) {
   const userStore = useUserStore(); 
   const userRole = userStore.user ? userStore.user.role : null;
-  console.log(userRole);
+
   if (userRole === 'admin') {
     next();
   } else {
@@ -35,17 +34,13 @@ const routes = [
       component: RegistrationPage
     },
     {
-        path: '/:id',
-        component: PostPage,
-    },
-    {
-        path: '/:pathMatch(.*)*',
-        component: NotFoundPage
-    },
-    {
       path: '/admin',
       component: AdminPage,
       beforeEnter: adminRouteGuard, 
+    },
+    {
+      path: '/:id',
+      component: PostPage,
     },
   ];
 

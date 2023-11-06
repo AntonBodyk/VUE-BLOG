@@ -35,12 +35,11 @@
                         <span>{{ post.dislikes_count }}</span>
                     </div>
                 </div>
-            <div class="post-delete">
+            <div v-if="userAuth()" class="post-delete">
                 <a-space warp>
                     <a-button class="delete" @click="removePost(post.id)" danger>Удалить пост</a-button>
                 </a-space>
             </div>
-            
             
         </div>
         <a-pagination class="pagination" :current="currentPage" :total="totalPosts"  :defaultPageSize="pageSize" @change="handlePageChange"  show-less-items/>
@@ -60,6 +59,7 @@ import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
 import {useUserStore} from '@/store/user';
+import {usePostsLikesStore} from '@/store/likesStore';
 
 export default{
     components:{
@@ -70,6 +70,7 @@ export default{
         return{
             isDarkTheme: false,
             modalVisible: false,
+            auth: '',
             posts: [],
             dateArray: [],
             pageSize: 10,
@@ -79,7 +80,7 @@ export default{
             componentData: 'Данные компонента',
             comments: [],
             count: 0,
-            commentCounts: {}
+            commentCounts: {},
         }
     },
     methods:{
@@ -93,6 +94,11 @@ export default{
         },
         hideModal(){
             this.modalVisible = false;
+        },
+        userAuth(){
+            let auth = useUserStore();
+            let authUser = auth.user !== null && auth.user.role === 'admin';
+            return authUser;
         },
         navigateToPost(postId) {
             if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
@@ -204,6 +210,9 @@ export default{
                         localStorage.setItem('likesData', JSON.stringify(likesData));
 
                         await instance.put(`/posts/${post.id}`, { likes_count: post.likes_count });
+
+                        const postsStore = usePostsLikesStore();
+                        postsStore.updateLikesCount(post.id, post.likes_count);
                         
                         } catch (error) {
                             message.error('Ошибка');
@@ -265,7 +274,6 @@ export default{
         combinedData() {
             return `${this.mixinData} - ${this.componentData}`;
         },
-        
     },
     mounted(){
         this.getPosts();
@@ -308,9 +316,11 @@ h3{
 .post-icons{
     display: flex;
     margin: 100px 0 0 20px;
+    padding-bottom: 10px;
 }
 .delete{
     margin-left: 100px;
+    margin-top: -20px;
 }
 .post-comment{
     margin-top: -3px;

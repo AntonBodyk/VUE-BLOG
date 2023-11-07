@@ -3,10 +3,16 @@
       <a-list
         v-if="commentsResponse && commentsResponse.length"
         :data-source="commentsResponse"
-        :header="`${commentsResponse.length} ${commentsResponse.length > 1 ? 'comments' : 'comment'}`"
         item-layout="horizontal"
         class="comment-list"
       >
+
+      <template v-slot:header>
+        <div class="left-align-header">
+          {{ commentsResponse.length }} {{ commentsResponse.length > 1 ? 'comments' : 'comment' }}
+        </div>
+      </template>
+
         <a-list-item v-for="comment in commentsResponse" :key="comment.id">
           <a-comment
             :author="comment.users.name"
@@ -20,18 +26,28 @@
       </div>
       <a-comment class="comment">
         <template #content>
-          <a-form-item>
-            <quill-editor v-model:content="value" contentType="text" theme="snow" ref="quillEditor"
-            :rules="[{ required: true, message: 'Пожалуйста, введите текст!' },{
-                pattern: /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/,
-                message: 'Комментарий должен начинаться с большой буквы',
-            }]">></quill-editor>
+          <a-form
+            :model="this.commentState"
+            ref="form"
+            name="basic"
+            :label-col="{ span: 8 }"
+            :wrapper-col="{ span: 16 }"
+            autocomplete="off"
+            @submit.prevent="handleSubmit"
+          >
+          <a-form-item name="comment"
+          :rules="[
+            { required: true, message: 'Пожалуйста, введите комментарий!' },
+            {validator: validateComment}
+          ]">
+            <a-textarea v-model:value="this.commentState.comment" :rows="4" :placeholder="'Введите комментарий'"/>
           </a-form-item>
           <a-form-item>
-            <a-button html-type="submit" :loading="submitting" type="primary" @click="handleSubmit">
+            <a-button html-type="submit" :loading="submitting" type="primary">
               Добавить
             </a-button>
           </a-form-item>
+          </a-form>
         </template>
       </a-comment>
     </div>
@@ -44,20 +60,21 @@
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { instance } from '@/axios/axiosInstance';
   import moment from 'moment';
-  import { ref } from 'vue';
-  import { message } from 'ant-design-vue';
+  
+
   
   dayjs.extend(relativeTime);
-  const quillEditor = ref(null);
+  
 
   export default {
     data() {
       return {
         comments: [],
         submitting: false,
-        value: '',
+        commentState: {
+          comment: ''
+        },
         userName: '',
-        quill: null
       };
     },
     props: {
@@ -71,63 +88,54 @@
       }
     },
     methods: {
-      async handleSubmit() {
-        if (!this.value) {
-          return;
-        }
-
-        const commentText = this.value;
-
+      handleSubmit() {
+        setTimeout(() => {
+                this.$refs.form.validate().then(res => {
+                  const userStore = useUserStore();
         
-        if (!/^[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/.test(commentText)) {
-          message.error('Комментарий должен начинаться с большой буквы');
-          return;
-        }
-  
-        this.submitting = true;
+                  const userID = userStore.user.id;
+                  this.userName = userStore.user.name;
 
-        const userStore = useUserStore();
-        
-        const userID = userStore.user.id;
-        this.userName = userStore.user.name;
-  
-        try {
-          const response = await instance.post('/comments', {
-            comment_text: this.value,
-            post_id: this.postId,
-            user_id: userID
-          });
+                  const response = instance.post('/comments', {
+                    comment_text: this.commentState.comment,
+                    post_id: this.postId,
+                    user_id: userID
+                  });
           
-          const newComment = {
-              id: response.data.id,
-              users: {
-                name: this.userName, 
-                created_at: moment().format(), 
-              },
-              comment_text: this.value, 
-          };
+                  const newComment = {
+                      users: {
+                        name: this.userName, 
+                        created_at: moment().format(), 
+                      },
+                      comment_text: this.commentState.comment, 
+                  };
 
-          this.commentsResponse.push(newComment);
-          
-          
-          const commentStore = useCommentStore();
-          commentStore.incrementCommentCount(this.postId);
-
-        
-          this.clearQuillEditor();
-       
-        } catch (error) {
-          console.error('Error adding comment', error);
-        } finally {
-          this.submitting = false;
-        }
+                  this.commentsResponse.push(newComment);
+                  this.commentState.comment = '';
+                  
+                  const commentStore = useCommentStore();
+                  commentStore.incrementCommentCount(this.postId);
+                }).catch(error => {
+                    console.log(error)
+                
+                })
+            }, 0);
       },
       formattedDate(created_at){
             return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
       },
-      clearQuillEditor() {
-        this.$refs.quillEditor.setContents('');
-      },
+      validateComment(rule, value) {
+        if(value){
+          const commentPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/;
+              if (commentPattern.test(value)) {
+                  return Promise.resolve(); 
+              } else {
+                  return Promise.reject('Комментарий должен начинаться с большой буквы!');
+              }
+          }else{
+              return Promise.resolve();
+          }
+      }
     }
   };
   </script>
@@ -136,7 +144,9 @@
 .comment-list{
     margin-top: 30px;
 }
-
+.left-align-header{
+  margin-left: 20px;
+}
 .comment{
   max-width: 500px;
   margin-left: 20px;

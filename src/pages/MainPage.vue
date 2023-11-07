@@ -2,17 +2,19 @@
     <div class="main" :style="{ backgroundColor: themeColor }">
         <posts-list></posts-list>
         <sidebar @change-color="updateBgColor"></sidebar>
+        <another-sidebar></another-sidebar>
     </div>
 </template>
 
 <script>
 import PostsList from '@/components/PostsList.vue';
 import Sidebar from "@/components/Sidebar.vue";
+import AnotherSidebar from '@/components/AnotherSidebar.vue';
 import {useThemeStore} from "@/store/colorStore";
 import { computed } from 'vue';
 export default{
     components:{
-        PostsList, Sidebar
+        PostsList, Sidebar, AnotherSidebar
     },
     setup() {
         const themeStore = useThemeStore();

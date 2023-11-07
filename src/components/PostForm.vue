@@ -37,11 +37,12 @@
             </a-auto-complete>
             </a-form-item>
 
-            <a-form-item name="body" :rules="[{ required: true, message: 'Пожалуйста, введите текст!' },{
-                pattern: /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/,
-                message: 'Текст поста должен начинаться с большой буквы',
-            }]">
-                <quill-editor v-model:content="this.post.body" contentType="text" theme="snow" ref="quillEditor"></quill-editor>
+            <a-form-item name="body" 
+            :rules="[
+                { required: true, message: 'Пожалуйста, введите текст!' },
+                {validator: validateText}
+            ]">
+                <a-textarea v-model:value="this.post.body" :rows="4"  :placeholder="'Текст поста'"/>
             </a-form-item>
             
 
@@ -54,8 +55,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-const quillEditor = ref(null);
 export default{
     props:{
         posts:{
@@ -133,9 +132,18 @@ export default{
                     return Promise.resolve();
             }
         },
-        clearQuillEditor() {
-            this.$refs.quillEditor.setContents('');
-        },
+            validateText(rule, value) {
+            if(value){
+                const commentPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/;
+                    if (commentPattern.test(value)) {
+                        return Promise.resolve(); 
+                    } else {
+                        return Promise.reject('Текст должен начинаться с большой буквы!');
+                    }
+            }else{
+                return Promise.resolve();
+            }
+        }
     
     }
 }

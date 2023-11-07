@@ -15,5 +15,11 @@ export const usePostsLikesStore = defineStore({
         post.likes_count = newLikesCount;
       }
     },
+    removePost(postId) {
+      const index = this.posts.findIndex(post => post.id === postId);
+      if (index !== -1) {
+        this.posts.splice(index, 1);
+      }
+    }
   },
 });

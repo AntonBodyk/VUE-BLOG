@@ -60,6 +60,7 @@ import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-
 import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
 import {useUserStore} from '@/store/user';
 import {usePostsLikesStore} from '@/store/likesStore';
+import { usePostsStore } from "@/store/postsStore";
 
 export default{
     components:{
@@ -117,6 +118,9 @@ export default{
                 
                 this.posts = postsResponse.data;
                 this.totalPosts = this.posts.length;
+
+                const posts = usePostsStore();
+                posts.posts = postsResponse.data;
 
                 const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
                 const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
@@ -179,12 +183,14 @@ export default{
         async removePost(postId){
             try{
                 const userStore = useUserStore(); 
+                const postsStore = usePostsLikesStore();
                 const userRole = userStore.user ? userStore.user.role : null;
                 if(userRole === 'admin'){
                     const deletePost = await instance.delete(`/posts/${postId}`)
                     if (deletePost.status === 200) {
                         this.posts = this.posts.filter(post => post.id !== postId);
                         message.success('Пост успешно удален');
+                        postsStore.removePost(postId);
                     } else {
                         message.error('Ошибка при удалении поста');
                     }

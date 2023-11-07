@@ -2,6 +2,7 @@ import MainPage from '@/pages/MainPage';
 import PostPage from '@/pages/PostPage';
 import SignPage from '@/pages/SignPage';
 import AdminPage from '@/pages/AdminPage';
+import CategoryPage from '@/pages/CategoryPage';
 
 import RegistrationPage from '@/pages/RegistrationPage';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -36,12 +37,16 @@ const routes = [
     {
       path: '/admin',
       component: AdminPage,
-      beforeEnter: adminRouteGuard, 
+      beforeEnter: adminRouteGuard
     },
     {
       path: '/:id',
-      component: PostPage,
+      component: PostPage
     },
+    {
+      path: '/categories/:category',
+      component: CategoryPage
+    }
   ];
 
 const router = createRouter({

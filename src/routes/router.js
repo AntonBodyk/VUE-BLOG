@@ -3,9 +3,9 @@ import PostPage from '@/pages/PostPage';
 import SignPage from '@/pages/SignPage';
 import AdminPage from '@/pages/AdminPage';
 import CategoryPage from '@/pages/CategoryPage';
-
+import NotFoundPage from '@/pages/NotFoundPage';
 import RegistrationPage from '@/pages/RegistrationPage';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '@/store/user';
 import { message } from 'ant-design-vue';
 
@@ -16,7 +16,7 @@ function adminRouteGuard(to, from, next) {
   if (userRole === 'admin') {
     next();
   } else {
-    next('/:pathMatch(.*)*');
+    next({name: 'NotFoundPage'});
     message.error('Вы не являетесь админом!');
   }
 }
@@ -40,6 +40,11 @@ const routes = [
       beforeEnter: adminRouteGuard
     },
     {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFoundPage',
+      component: NotFoundPage,
+    },
+    {
       path: '/:id',
       component: PostPage
     },
@@ -51,7 +56,7 @@ const routes = [
 
 const router = createRouter({
     routes,
-    history: createWebHashHistory(process.env.BASE_URL)
+    history: createWebHistory(process.env.BASE_URL)
 })
 
 export default router;

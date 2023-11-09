@@ -24,7 +24,7 @@
 
 <script>
 import { instance } from "../axios/axiosInstance";
-import {usePostsLikesStore} from '@/store/likesStore';
+import {usePostsStore} from '@/store/postsStore';
 import { message } from 'ant-design-vue';
 import Icon from '@ant-design/icons-vue';
 export default {
@@ -32,15 +32,15 @@ export default {
         Icon
     },
     methods:{
-        async getPopularPosts(){
-            const response = await instance.get('/posts');
+        // async getPopularPosts(){
+        //     const response = await instance.get('/posts');
 
-            const postsStore = usePostsLikesStore();
-            postsStore.setPosts(response.data);
+        //     const postsStore = usePostsLikesStore();
+        //     postsStore.setPosts(response.data);
             
-        },
+        // },
         filteredAndSortedByLikes() {
-            const postsStore = usePostsLikesStore();
+            const postsStore = usePostsStore();
             return postsStore.posts
                 .filter(post => post.likes_count > 4)
                 .sort((a, b) => b.likes_count - a.likes_count);
@@ -50,12 +50,12 @@ export default {
                 this.$router.push(`/${popularPost.id}`);
             } else {
                 message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                window.location.href = '#/sign';
+                this.$router.push('/sign');
             }
         },
     },
     mounted(){
-        this.getPopularPosts();
+        // this.getPopularPosts();
         this.filteredAndSortedByLikes();
     }
 }

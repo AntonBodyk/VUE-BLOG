@@ -1,8 +1,8 @@
 <template>
-    <div v-if="posts.length > 0">
+    <div v-if="pagedPosts.length > 0">
         <h3>Список постов</h3>
         <create-new-post v-model:open="modalVisible">
-            <PostForm @create="addPost" :posts="posts"/>
+            <PostForm @create="addPost"/>
         </create-new-post>
         <default-button @click="showModalCreate">Создать пост</default-button>
         <default-button @click="userHandler">Привествие</default-button>
@@ -59,8 +59,7 @@ import moment from 'moment';
 import {LikeOutlined, DislikeOutlined, CommentOutlined} from '@ant-design/icons-vue';
 import LifecycleLoggerMixin from '@/components/mixins/LifecycleHookMixin';
 import {useUserStore} from '@/store/user';
-import {usePostsLikesStore} from '@/store/likesStore';
-import { usePostsStore } from "@/store/postsStore";
+import {usePostsStore} from '@/store/postsStore';
 
 export default{
     components:{
@@ -72,7 +71,6 @@ export default{
             isDarkTheme: false,
             modalVisible: false,
             auth: '',
-            posts: [],
             dateArray: [],
             pageSize: 10,
             currentPage: 1,
@@ -90,7 +88,7 @@ export default{
                 this.modalVisible = true;
             }else{
                 message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                window.location.href = '#/sign';
+                this.$router.push('/sign');
             }
         },
         hideModal(){
@@ -106,7 +104,7 @@ export default{
                 this.$router.push(`/${postId}`);
             } else {
                 message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                window.location.href = '#/sign';
+                this.$router.push('/sign');
             }
         },
         async getPosts() {
@@ -116,16 +114,16 @@ export default{
                     instance.get('/comments'),
                 ]);
                 
-                this.posts = postsResponse.data;
-                this.totalPosts = this.posts.length;
+                
+                const postsStore = usePostsStore();
+                postsStore.setPosts(postsResponse.data);
 
-                const posts = usePostsStore();
-                posts.posts = postsResponse.data;
+                this.totalPosts = postsStore.posts.length;
 
                 const likesData = JSON.parse(localStorage.getItem('likesData')) || {};
                 const dislikesData = JSON.parse(localStorage.getItem('dislikesData')) || {};
 
-                this.posts.forEach(post => {
+                postsStore.posts.forEach(post => {
                     let likesCount = likesData[post.id];
                     let dislikesCount = dislikesData[post.id];
                     
@@ -150,29 +148,30 @@ export default{
         },
         async addPost(newPost){
                 const newUser = useUserStore();
-
+                const postStore = usePostsStore();
                 try{
                     
-                        const response = await instance.post('/posts', {
-                            id: newPost.id,
-                            title: newPost.title,
-                            body: newPost.body,
-                            category: newPost.category,
-                            user_id: newUser.user.id
-                        });
-                        if (response.status === 201) { 
-                        const createdPost = response.data.data;
+                    const response = await instance.post('/posts', {
+                        id: newPost.id,
+                        title: newPost.title,
+                        body: newPost.body,
+                        category: newPost.category,
+                        user_id: newUser.user.id
+                    });
+                    if (response.status === 201) { 
+                    const createdPost = response.data.data;
 
 
-                        createdPost.likes_count = 0;
-                        createdPost.dislikes_count = 0;
+                    createdPost.likes_count = 0;
+                    createdPost.dislikes_count = 0;
 
-                        this.posts.push(createdPost); 
-                        message.success('Пост успешно создан.');
-                        this.modalVisible = false;
-                    } else {
-                        message.error('Ошибка при создании поста.');
-                    }
+                    postStore.addPost(createdPost);
+                    message.success('Пост успешно создан.');
+                    this.modalVisible = false;
+                    
+                } else {
+                    message.error('Ошибка при создании поста.');
+                }
                     
                 }catch{
                     message.error('Ошибка');
@@ -183,14 +182,16 @@ export default{
         async removePost(postId){
             try{
                 const userStore = useUserStore(); 
-                const postsStore = usePostsLikesStore();
+                const postStore = usePostsStore();
                 const userRole = userStore.user ? userStore.user.role : null;
                 if(userRole === 'admin'){
                     const deletePost = await instance.delete(`/posts/${postId}`)
                     if (deletePost.status === 200) {
-                        this.posts = this.posts.filter(post => post.id !== postId);
+                        // this.posts.filter(post => post.id !== postId);
+                        postStore.removePost(postId);
                         message.success('Пост успешно удален');
-                        postsStore.removePost(postId);
+                        
+                       
                     } else {
                         message.error('Ошибка при удалении поста');
                     }
@@ -217,7 +218,7 @@ export default{
 
                         await instance.put(`/posts/${post.id}`, { likes_count: post.likes_count });
 
-                        const postsStore = usePostsLikesStore();
+                        const postsStore = usePostsStore();
                         postsStore.updateLikesCount(post.id, post.likes_count);
                         
                         } catch (error) {
@@ -225,7 +226,7 @@ export default{
                         }
                 }else{
                     message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                    window.location.href = '#/sign';
+                    this.$router.push('/sign');
                 }
                
         },
@@ -248,7 +249,7 @@ export default{
                 }
             }else{
                     message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                    window.location.href = '#/sign';
+                    this.$router.push('/sign');
                 }
         },
         handlePageChange(page) {
@@ -272,7 +273,8 @@ export default{
             return (this.currentPage - 1) * this.pageSize;
         },
         pagedPosts() {
-            return this.posts.slice(this.startIndex, this.startIndex + this.pageSize);
+            const postsStore = usePostsStore();
+            return postsStore.posts.slice(this.startIndex, this.startIndex + this.pageSize);
         },
         clickHandler() {
             return this.userHello ? this.helloUser : this.goodbyeUser;

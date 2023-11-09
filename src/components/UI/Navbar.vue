@@ -16,7 +16,7 @@
         <a-modal v-model:open="open" class="registration" :width="modalWidth">
             <template #footer>
                 <a-button style="background: darkcyan; color: white;" class="sign-in" @click="$router.push('/sign'), removeModal()">Войти</a-button>
-                <a-button class="sign-up" @click="logout(), removeModal()">Выход</a-button>
+                <a-button class="sign-up" @click="logout(), removeModal(), $router.push('/sign');">Выход</a-button>
             </template>
         </a-modal>
     </div>
@@ -54,7 +54,7 @@ export default{
                 themeStore.toggleTheme();
             }else{
                 message.error('Вы не являетесь админом!');
-                window.location.href = '#/:pathMatch(.*)*';
+                this.$router.push({name: 'NotFoundPage'});
             }
         },
     },
@@ -83,9 +83,7 @@ export default{
                     userStore.clearToken();
                     userStore.clearAuthUser();
                     
-                    message.success('Вы вышли из аккаунта!');
-
-                    window.location.href = '#/sign';
+                   message.success('Вы вышли из аккаунта!');
                 } else {
                     message.error('Logout failes', response);
                 }

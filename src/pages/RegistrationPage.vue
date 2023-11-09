@@ -140,7 +140,6 @@
                 }
         },
         clearEmailValidation() {
-            // Clear email field validation errors
             this.$refs.form.clearValidate('user.email');
         },
         validatePasswordMatch(rule, value) {

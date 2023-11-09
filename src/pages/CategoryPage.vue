@@ -1,22 +1,22 @@
 <template>
     <div>
-      <h1>{{ currentCategory }}</h1>
       <div>
-        <h2>Список постов категории "{{ currentCategory }}"</h2>
+        <h2>Список постов по теме "{{ currentCategory }}"</h2>
         
-          <ul class="category-list">
+          <ol class="category-list">
             <li v-for="post in filteredPosts" :key="post.id">
-              {{ post.title }}
+              Название поста: {{ post.title }}
             </li>
-          </ul>
+          </ol>
       </div>
     </div>
 </template>
   
 <script>
-import { ref, computed} from 'vue';
-import { usePostsStore } from '@/store/postsStore';
+import { ref, computed, onMounted} from 'vue';
+import {usePostsStore} from '@/store/postsStore';
 import { useRoute } from 'vue-router';
+import { instance } from '@/axios/axiosInstance';
 
 export default {
   setup() {
@@ -25,11 +25,13 @@ export default {
     const postsStore = usePostsStore();
 
     
-    const storedData = localStorage.getItem('posts');
-    if (storedData) {
-      postsStore.setPosts(JSON.parse(storedData));
-    }
-
+    onMounted(async () => {
+          const response = await instance.get('/posts');
+          postsStore.setPosts(response.data);
+    });
+            
+            
+        
     const filteredPosts = computed(() => {
       return postsStore.posts.filter(post => post.category === currentCategory.value);
     });
@@ -42,8 +44,25 @@ export default {
 };
 </script>
 
+<style scoped>
 
+h2{
+  font-size: 30px;
+  color: cadetblue;
+  margin: 50px 0 0 28%;
+}
 
+.category-list{
+  margin: 20px 0 0 34%;
+  width: 500px;
+}
+
+.category-list li{
+  margin-top: 10px;
+  font-size: 20px;
+  color: cadetblue;
+}
+</style>
 
 
 

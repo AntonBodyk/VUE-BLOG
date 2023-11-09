@@ -9,7 +9,6 @@
                 :wrapper-col="{ span: 16 }"
                 autocomplete="off"
                 style="width: 600px; margin-left: 40px; "
-                
                 @submit.prevent="submitForm"
                 >
             <a-form-item
@@ -55,13 +54,8 @@
 </template>
 
 <script>
+import { usePostsStore } from '@/store/postsStore';
 export default{
-    props:{
-        posts:{
-            type: Array,
-            required: true
-        }
-    },
     data(){
         return{
             post:{
@@ -83,7 +77,6 @@ export default{
                         body: '',
                         category: '',
                     };
-                    this.clearQuillEditor();
                 }).catch(error => {
                     console.log(error)
                 
@@ -92,9 +85,10 @@ export default{
             
         },
         handleSearch() {
+            const postsStore = usePostsStore();
             const searchQuery = this.post.category;
             
-            const filteredPosts = this.posts.filter(post => post.category && post.category.includes(searchQuery));
+            const filteredPosts = postsStore.posts.filter(post => post.category && post.category.includes(searchQuery));
             
             this.autocompleteOptions = filteredPosts.map(item => ({value: item.category, id: item.id}));
         },
@@ -132,7 +126,7 @@ export default{
                     return Promise.resolve();
             }
         },
-            validateText(rule, value) {
+        validateText(rule, value) {
             if(value){
                 const commentPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/;
                     if (commentPattern.test(value)) {
@@ -144,7 +138,6 @@ export default{
                 return Promise.resolve();
             }
         }
-    
     }
 }
 </script>

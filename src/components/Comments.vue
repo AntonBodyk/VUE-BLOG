@@ -1,19 +1,19 @@
 <template>
     <div class="comments">
       <a-list
-        v-if="commentsResponse && commentsResponse.length"
-        :data-source="commentsResponse"
+        v-if="commentsArray && commentsArray.length"
+        :data-source="commentsArray"
         item-layout="horizontal"
         class="comment-list"
       >
 
       <template v-slot:header>
         <div class="left-align-header">
-          {{ commentsResponse.length }} {{ commentsResponse.length > 1 ? 'comments' : 'comment' }}
+          {{ commentsArray.length }} {{ commentsArray.length > 1 ? 'comments' : 'comment' }}
         </div>
       </template>
 
-        <a-list-item v-for="comment in commentsResponse" :key="comment.id">
+        <a-list-item v-for="comment in commentsArray" :key="comment.id">
           <a-comment
             :author="comment.users.name"
             :content="comment.comment_text"
@@ -28,7 +28,7 @@
         <template #content>
           <a-form
             :model="this.commentState"
-            ref="form"
+            ref="formRef"
             name="basic"
             :label-col="{ span: 8 }"
             :wrapper-col="{ span: 16 }"
@@ -40,7 +40,7 @@
             { required: true, message: 'Пожалуйста, введите комментарий!' },
             {validator: validateComment}
           ]">
-            <a-textarea v-model:value="this.commentState.comment" :rows="4" :placeholder="'Введите комментарий'"/>
+            <a-textarea v-model:value="commentState.comment" :rows="4" :placeholder="'Введите комментарий'"/>
           </a-form-item>
           <a-form-item>
             <a-button html-type="submit" :loading="submitting" type="primary">
@@ -60,71 +60,69 @@
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { instance } from '@/axios/axiosInstance';
   import moment from 'moment';
-  
+  import {ref} from 'vue';
 
-  
   dayjs.extend(relativeTime);
   
 
   export default {
-    data() {
-      return {
-        comments: [],
-        submitting: false,
-        commentState: {
-          comment: ''
-        },
-        userName: '',
-      };
-    },
     props: {
       postId: {
         type: String,
         required: true
       },
-      commentsResponse:{
-        type: Object,
+      commentsArray:{
+        type: Array,
         required: true
       }
     },
-    methods: {
-      handleSubmit() {
+    setup(props){
+      const comments = ref([]);
+      const submitting = ref(false);
+      const commentState = ref({
+          comment: ''
+      });
+      // const userName = ref('');
+      const userStore = useUserStore();
+      const formRef = ref(null);
+
+      const handleSubmit = () => {
         setTimeout(() => {
-                this.$refs.form.validate().then(res => {
-                  const userStore = useUserStore();
-        
+                formRef.value.validate().then(res => {
+                  
                   const userID = userStore.user.id;
-                  this.userName = userStore.user.name;
+                  // userName.value = userStore.user.name;
 
                   const response = instance.post('/comments', {
-                    comment_text: this.commentState.comment,
-                    post_id: this.postId,
+                    comment_text: commentState.value.comment,
+                    post_id: props.postId,
                     user_id: userID
                   });
           
                   const newComment = {
                       users: {
-                        name: this.userName, 
+                        name: userStore.user.name, 
                         created_at: moment().format(), 
                       },
-                      comment_text: this.commentState.comment, 
+                      comment_text: commentState.value.comment, 
                   };
 
-                  this.commentsResponse.push(newComment);
-                  this.commentState.comment = '';
+                  props.commentsArray.push(newComment);
+                  commentState.value.comment = '';
                   
                   const commentStore = useCommentStore();
-                  commentStore.incrementCommentCount(this.postId);
+                  commentStore.incrementCommentCount(props.postId);
                 }).catch(error => {
                     console.log(error)
-                
                 })
             }, 0);
-      },
-      formattedDate(created_at){
+      };
+
+      const formattedDate = (created_at) =>{
             return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
-      },
-      validateComment(rule, value) {
+      };
+
+      const validateComment = (rule, value) => {
         if(value){
           const commentPattern = /[А-ЯA-Z][ \t]*[а-яА-ЯA-Za-z\s]*$/;
               if (commentPattern.test(value)) {
@@ -135,6 +133,16 @@
           }else{
               return Promise.resolve();
           }
+      };
+
+      return{
+        comments,
+        submitting,
+        commentState,
+        handleSubmit,
+        formattedDate,
+        validateComment,
+        formRef
       }
     }
   };

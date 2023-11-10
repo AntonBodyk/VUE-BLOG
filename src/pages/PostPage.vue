@@ -1,75 +1,83 @@
 <template>
-    <div>
-        <div v-if="postNotFound">
-            <not-found-page></not-found-page>
-        </div>
-        <div v-else>
-            <div class="post-page">
-                <div v-if="post" class="post">
-                        <h2 class="post-title">{{ post.title }}</h2>
-                        <div class="post-create-date">
-                            Дата создания поста: {{ formattedDate(post.created_at) }}
-                        </div>
-                        <div class="post-category">
-                            Тема: {{ post.category }}
-                        </div>
-                            <div class="post-body">
-                            <p>{{ post.body }}</p>
-                        </div>
-                    </div>
-        
-        <comments :postId="$route.params.id" :commentsResponse="commentsResponse"></comments>
+<div>
+    <div v-if="postNotFound">
+        <not-found-page></not-found-page>
     </div>
+    <div v-else>
+        <div class="post-page">
+            <div v-if="post" class="post">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <div class="post-create-date">
+                Дата создания поста: {{ formattedDate(post.created_at) }}
+            </div>
+            <div class="post-category">
+                Тема: {{ post.category }}
+            </div>
+            <div class="post-body">
+                <p>{{ post.body }}</p>
+            </div>
+            </div>
+
+            <comments :postId="$route.params.id" :commentsArray="commentsArray"></comments>
         </div>
     </div>
-    
+</div>
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
 import Comments from '@/components/Comments.vue';
 import NotFoundPage from './NotFoundPage.vue';
 import { instance } from '@/axios/axiosInstance';
 import moment from 'moment';
+import { useRoute } from 'vue-router';
 
 export default {
-    components:{
-        Comments, NotFoundPage
-    },
-    data() {
-        return {
-            post: {},
-            commentsResponse: [],
-            postNotFound: false,
-        };
-    },
-    methods:{
-        async getPost(id) {
-            try {
-                const [postResponse, commentsResponse] = await Promise.all([
-                    instance.get(`/posts/${id}`),
-                    instance.get(`/comments/${id}`),
-                ]);
+components: {
+    Comments,
+    NotFoundPage,
+},
+setup() {
+    const post = ref({});
+    const commentsArray = ref([]);
+    const postNotFound = ref(false);
+    const route = useRoute();
 
-                this.post = postResponse.data;
-                
-                this.commentsResponse = commentsResponse.data;
-                
-            } catch (error) {
-                if (error.response.status  === 404) {
-                    this.postNotFound = true;
-                } else {
-                    console.error('Error fetching post data', error);
-                }
+    const getPost = async (id) => {
+        try {
+            const [postResponse, commentsResponse] = await Promise.all([
+                instance.get(`/posts/${id}`),
+                instance.get(`/comments/${id}`),
+            ]);
+
+            console.log(commentsResponse.data)
+            post.value = postResponse.data;
+            commentsArray.value = commentsResponse.data;
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                postNotFound.value = true;
+            } else {
+                console.error('Error fetching post data', error);
             }
-        },
-        formattedDate(created_at){
-            return moment(created_at).format("MMMM Do YYYY, h:mm:ss");
         }
-    },
-    created() {
-        this.getPost(this.$route.params.id);
-    }
-}
+    };
+
+    const formattedDate = (created_at) => {
+        return moment(created_at).format('MMMM Do YYYY, h:mm:ss');
+    };
+
+    onMounted(() => {
+        getPost(route.params.id);
+    });
+
+    return {
+        post,
+        commentsArray,
+        postNotFound,
+        formattedDate,
+    };
+},
+};
 </script>
 
 <style scoped>

@@ -19,24 +19,24 @@
 <script>
 import { instance } from '@/axios/axiosInstance';
 import { message } from 'ant-design-vue';
+import { ref, onMounted } from 'vue';
 export default{
-  data(){
-    return{
-      users: []
-    }
-  },
-  methods:{
-    async getUsers(){
+
+  setup(){
+    const users = ref([]);
+
+    const getUsers = async () => {
       const response = await instance.get('/users');
       console.log(response.data);
 
-      this.users = response.data;
-    },
-    async removeUser(userId){
+      users.value = response.data;
+    };
+
+    const removeUser = async (userId) =>{
             try{
                 const deleteUser = await instance.delete(`/users/${userId}`)
                 if (deleteUser.status === 200) {
-                    this.users = this.users.filter(user => user.id !== userId);
+                    users.value = users.value.filter(user => user.id !== userId);
                     message.success('Пользователь успешно удален');
                 } else {
                     message.error('Ошибка при удалении пользователя');
@@ -45,10 +45,17 @@ export default{
             }catch{
                 message.error('Ошибка');
             }
-        },
-  },
-  mounted(){
-    this.getUsers();
+    };
+
+    onMounted(() => {
+      getUsers();
+    });
+
+
+    return{
+      users,
+      removeUser
+    }
   }
 }
 </script>

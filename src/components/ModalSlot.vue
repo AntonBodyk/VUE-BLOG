@@ -21,16 +21,25 @@
   </template>
   
   <script>
+  import {ref} from 'vue';
   export default {
     name: "Modal",
     props: {
-      show: Boolean,
+        show: Boolean,
     },
-    methods: {
-      closeModal() {
+    setup(props){
+      
+      const closeModal = () => {
         this.$emit("close");
-      },
-    },
+      };
+
+      const show = ref(props.show);
+
+      return{
+        closeModal,
+        show
+      }
+    }
   };
   </script>
   

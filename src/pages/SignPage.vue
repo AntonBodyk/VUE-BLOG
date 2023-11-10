@@ -51,49 +51,50 @@
   import { instance } from '@/axios/axiosInstance';
   import { message } from 'ant-design-vue';
   import { useUserStore } from '@/store/user';
-  
+  import {ref, getCurrentInstance} from 'vue';
+
   export default {
-    data() {
-      return {
-        formState: {
+    setup(){
+      const formState = ref({
           email: '',
           password: '',
           remember: false,
-        },
-      };
-    },
-    methods: {
-      async loginUser() {
-        try {
-          const response = await instance.post('/auth/login', {
-            email: this.formState.email,
-            password: this.formState.password,
-          });
-  
-          if (response.data && response.data.token) {
-           
-            const token = response.data.token; 
-            const userStore = useUserStore();
-            
-            userStore.setToken(token);
-            
+        });
 
-            message.success('Вход выполнен!');
-            
-            userStore.setUser(response.data);
+        const router = getCurrentInstance().appContext.config.globalProperties.$router;
 
-            this.$router.push('/');
-            this.formState.name = '';
-            this.formState.password = '';
-            this.formState.remember = false;
-          } else {
-            message.error('Ошибка, вход не выполнен!');
+        const loginUser = async () => {
+          try {
+            const response = await instance.post('/auth/login', {
+              email: formState.value.email,
+              password: formState.value.password,
+            });
+    
+            if (response.data && response.data.token) {
+            
+              const token = response.data.token; 
+              const userStore = useUserStore();
+              
+              userStore.setToken(token);
+              
+
+              message.success('Вход выполнен!');
+              
+              userStore.setUser(response.data);
+
+              router.push('/');
+              formState.value.name = '';
+              formState.value.password = '';
+              formState.value.remember = false;
+            } else {
+              message.error('Ошибка, вход не выполнен!');
+            }
+          } catch (error) {
+              message.error('Ошибка сервера!');
           }
-        } catch (error) {
-          message.error('Ошибка сервера!');
-        }
-      },
-      validateEmail(rule, value) {
+      };
+
+      const validateEmail = (rule, value) => {
                 if(value){
                     const emailPattern = /@/;
 
@@ -105,8 +106,14 @@
                 }else{
                     return Promise.resolve();
                 }
-        },
-    },
+      };
+
+      return{
+        formState,
+        loginUser,
+        validateEmail
+      }
+    }
   };
   </script>
 

@@ -4,7 +4,6 @@
 
         <div class="popular-category" v-for="category in getPopularCategories()" :key="category">
             <p class="category" @click="navigateToPost(category)">
-                <!-- <router-link :to="'/categories/' + category">{{ category }}</router-link>  -->
                 {{ category }}
             </p>
         </div>
@@ -12,25 +11,30 @@
 </template>
 
 <script>
-import { instance } from "../axios/axiosInstance";
 import {usePostsStore} from '@/store/postsStore';
 import { message } from 'ant-design-vue';
 import Icon from '@ant-design/icons-vue';
+import { onMounted, getCurrentInstance } from 'vue';
 export default {
     components:{
         Icon
     },
-    methods:{
-        navigateToPost(category) {
+    setup(){
+        const router = getCurrentInstance().appContext.config.globalProperties.$router;
+
+        const navigateToPost = (category) => {
             if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
-                this.$router.push(`${'/categories/' + category}`);
+                router.push(`${'/categories/' + category}`);
             } else {
                 message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                this.$router.push('/sign');
+                router.push('/sign');
             }
-        },
-        getPopularCategories() {
-            const postsStore = usePostsStore();
+        };
+
+        const postsStore = usePostsStore();
+
+        const getPopularCategories = () => {
+            
             const categoryCounts = {};
 
             postsStore.posts.forEach(post => {
@@ -44,21 +48,29 @@ export default {
             const popularCategories = Object.keys(categoryCounts).filter(category => categoryCounts[category] >= 10);
 
             return popularCategories;
-    },
-    getPopularCategoryPosts() {
-        const popularCategories = this.getPopularCategories();
-        return popularCategories;
-    },
-    filteredAndSortedByCategory() {
-        const postsStore = usePostsStore();
-        const popularCategories = this.getPopularCategories();
+        };
 
-        return postsStore.posts.filter(post => popularCategories.includes(post.category));
-    },
-    },
-    mounted(){
-        this.getPopularCategoryPosts();
-        this.filteredAndSortedByCategory();
+        // const getPopularCategoryPosts = () => {
+        //     const popularCategories = this.getPopularCategories();
+        //     return popularCategories;
+        // };
+
+        const filteredAndSortedByCategory = () => {
+            const popularCategories = getPopularCategories();
+
+            return postsStore.posts.filter(post => popularCategories.includes(post.category));
+        };
+
+        onMounted(() => {
+            getPopularCategories();
+            filteredAndSortedByCategory();
+        });
+
+        return{
+            navigateToPost,
+            getPopularCategories
+        }
+
     }
 }
 </script>

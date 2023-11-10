@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { instance } from "../axios/axiosInstance";
+import {onMounted, getCurrentInstance} from 'vue';
 import {usePostsStore} from '@/store/postsStore';
 import { message } from 'ant-design-vue';
 import Icon from '@ant-design/icons-vue';
@@ -31,32 +31,33 @@ export default {
     components:{
         Icon
     },
-    methods:{
-        // async getPopularPosts(){
-        //     const response = await instance.get('/posts');
+    setup(){
+        const router = getCurrentInstance().appContext.config.globalProperties.$router;
 
-        //     const postsStore = usePostsLikesStore();
-        //     postsStore.setPosts(response.data);
-            
-        // },
-        filteredAndSortedByLikes() {
+        const filteredAndSortedByLikes = () => {
             const postsStore = usePostsStore();
             return postsStore.posts
                 .filter(post => post.likes_count > 4)
                 .sort((a, b) => b.likes_count - a.likes_count);
-        },
-        navigateToPost(popularPost) {
+        };
+
+        const navigateToPost = (popularPost) => {
             if (localStorage.getItem('auth_user') && localStorage.getItem('auth_token') !== null) {
-                this.$router.push(`/${popularPost.id}`);
+                router.push(`/${popularPost.id}`);
             } else {
                 message.error('Войдите или зарегистрируйтесь чтобы продолжить!');
-                this.$router.push('/sign');
+                router.push('/sign');
             }
-        },
-    },
-    mounted(){
-        // this.getPopularPosts();
-        this.filteredAndSortedByLikes();
+        };
+
+        onMounted(() => {
+            filteredAndSortedByLikes();
+        });
+
+        return{
+            filteredAndSortedByLikes,
+            navigateToPost
+        }
     }
 }
 </script>
